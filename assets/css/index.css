@@ -1,0 +1,59 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: sans-serif;
+  overflow: hidden;
+  background: #2a2734;
+}
+
+body {
+  height: 100%;
+}
+
+form {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: auto 3rem;
+  height: 100%;
+}
+
+input,
+textarea {
+  font: inherit;
+  padding: .5rem;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+  font-family: monospace;
+  font-size: 1.25rem;
+  line-height: 1.5em;
+}
+
+textarea {
+  resize: none;
+  opacity: 0;
+}
+
+.CodeMirror {
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1.5em;
+  height: 100% !important;
+}
+
+input[type="submit"] {
+  background: #e6aa64;
+  border-bottom: 0;
+  line-height: 1;
+  padding: 1rem;
+  grid-column: span 2;
+}
+input:focus {
+  outline: 0;
+}
+
+.CodeMirror:last-of-type {
+  border-left: 1px solid rgba(255,255,255, .1);
+}
