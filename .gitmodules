@@ -1,0 +1,3 @@
+[submodule "site/plugins/kql"]
+	path = site/plugins/kql
+	url = git@github.com:getkirby/kql.git
