@@ -23,3 +23,7 @@ Template: image
 ----
 
 Sort: 6
+
+----
+
+Uuid: afMG39r19XXiO8Og
