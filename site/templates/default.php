@@ -15,8 +15,8 @@
   <form id="form" method="post">
     <?php snippet("sidebar") ?>
     <textarea id="query" placeholder="Query …"></textarea>
-    <textarea id="result"></textarea>
-    <input type="submit" value="&rarr; Execute &rarr;">
+    <textarea id="result" placeholder="Response …"></textarea>
+    <input type="submit" value="Execute">
   </form>
 
   <?= js([
@@ -66,6 +66,18 @@
         }
       },
       "Notes children": {
+        query: "page('notes').children"
+      },
+      "C": {
+        query: "page('notes').children"
+      },
+      "D": {
+        query: "page('notes').children"
+      },
+      "E": {
+        query: "page('notes').children"
+      },
+      "F": {
         query: "page('notes').children"
       }
     };
