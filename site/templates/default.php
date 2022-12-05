@@ -48,7 +48,7 @@
 
     // query example
     const examples = {
-      "Photography children": {
+      "Photography albums": {
         query: "page('photography').children",
         select: {
           url: true,
@@ -65,20 +65,15 @@
           }
         }
       },
-      "Notes children": {
-        query: "page('notes').children"
-      },
-      "C": {
-        query: "page('notes').children"
-      },
-      "D": {
-        query: "page('notes').children"
-      },
-      "E": {
-        query: "page('notes').children"
-      },
-      "F": {
-        query: "page('notes').children"
+      "Newest blog post": {
+        query: "page('notes').children.sortBy('date', 'desc').first",
+        select: {
+          title: "page.title",
+          text: "page.text.toBlocks.toHtml",
+          published: "page.date.toDate('d.m.Y')",
+          tags: true,
+          url: true
+        }
       }
     };
 
