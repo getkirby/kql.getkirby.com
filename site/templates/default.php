@@ -74,6 +74,15 @@
           tags: true,
           url: true
         }
+      },
+      "Users": {
+        query: "kirby.users",
+        select: {
+          name: true,
+          text: "user.bio.kt",
+          email: true,
+          pic: "user.image"
+        }
       }
     };
 

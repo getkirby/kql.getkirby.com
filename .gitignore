@@ -32,12 +32,6 @@ Icon
 /site/cache/*
 !/site/cache/index.html
 
-# Accounts
-# ---------------
-
-/site/accounts/*
-!/site/accounts/index.html
-
 # Sessions
 # ---------------
 
