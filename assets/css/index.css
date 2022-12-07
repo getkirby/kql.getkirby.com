@@ -25,6 +25,21 @@ form {
 
 .sidebar .link {
   text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.sidebar .links {
+  display: grid;
+  gap: .25rem;
+}
+.sidebar .links a {
+  position: relative;
+  padding-left: 1rem;
+}
+.sidebar .links a:before {
+  position: absolute;
+  left: 0;
+  content: "→";
 }
 
 .sidebar button {

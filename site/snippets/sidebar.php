@@ -9,14 +9,16 @@
 			<a class="link" href="https://getkirby.com">Kirby</a>'s Query Language API combines the flexibility of Kirby's data structures, the power of GraphQL and the simplicity of REST.
 		</p>
 
-		<nav>
-			<a class="block mb-1" href="https://getkirby.com/plugins/getkirby/kql"><span class="link">Documentation</span> &rarr;</a>
-			<a class="block" href="https://getkirby.com"><span class="link">Kirby CMS</span> &rarr;</a>
+		<nav class="links">
+			<a class="link" href="https://getkirby.com">Kirby CMS</a>
+			<a class="link mb-6" href="https://getkirby.com/plugins/getkirby/kql">Documentation</a>
+			<a class="link" href="https://github.com/getkirby/eleventykit">KQL + 11ty</a>
+			<a class="link" href="https://nuxt-kql.jhnn.dev/">KQL + Nuxt</a>
 		</nav>
 	</header>
 
 	<div class="examples flex-grow">
-		<h2 class="font-bold mb-3">Examples</h2>
+		<h2 class="font-bold mb-3">Example Queries</h2>
 		<nav class="samples flex flex-column"></nav>
 	</div>
 
