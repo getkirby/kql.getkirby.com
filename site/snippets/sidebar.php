@@ -1,8 +1,10 @@
 <div class="sidebar flex flex-column p-6 text-xs">
 	<header class="mb-12">
 		<h1 class="font-sans text-2xl mb-6">
-			KQL
-			<small class="version font-mono text-xs">v<?= Kirby::plugin('getkirby/kql')->version() ?></small>
+			<a href="https://github.com/getkirby/kql">
+				KQL
+				<small class="version font-mono text-xs">v<?= Kirby::plugin('getkirby/kql')->version() ?></small>
+			</a>
 		</h1>
 
 		<p class="color-gray-400 mb-6">
@@ -10,8 +12,7 @@
 		</p>
 
 		<nav class="links">
-			<a class="link" href="https://getkirby.com">Kirby CMS</a>
-			<a class="link mb-6" href="https://getkirby.com/plugins/getkirby/kql">Documentation</a>
+			<a class="link mb-6" href="https://github.com/getkirby/kql">Documentation</a>
 			<a class="link" href="https://github.com/getkirby/eleventykit">KQL + 11ty</a>
 			<a class="link" href="https://nuxt-kql.jhnn.dev/">KQL + Nuxt</a>
 		</nav>
