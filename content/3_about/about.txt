@@ -20,13 +20,16 @@ Phone: +49 1234 5678
 
 Social:
 
-- 
+-
+  platform: Mastodon
+  url: https://mastodon.social/@getkirby
+-
   platform: Twitter
   url: https://twitter.com/getkirby
-- 
+-
   platform: Instagram
   url: https://instagram.com/getkirby
-- 
+-
   platform: Discord
   url: https://chat.getkirby.com
 

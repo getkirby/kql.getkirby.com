@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KQL | Kirby Query Language | Playground</title>
 
+  <?= css('https://assets.getkirby.com/assets/css/index.css') ?>
   <?= css('assets/css/index.css') ?>
   <?= css('assets/codemirror/lib/codemirror.css') ?>
   <?= css('assets/codemirror/theme/material-ocean.css') ?>
@@ -16,7 +17,6 @@
     <?php snippet("sidebar") ?>
     <textarea id="query" placeholder="Query …"></textarea>
     <textarea id="result" placeholder="Response …"></textarea>
-    <input type="submit" value="Execute">
   </form>
 
   <?= js([
@@ -83,6 +83,34 @@
           email: true,
           pic: "user.image"
         }
+      },
+      "All pages": {
+        query: "site.index",
+        select: ["id", "uuid", "title", "url"]
+      },
+      "All files": {
+        query: "site.index.files",
+        select: ["id", "uuid", "filename", "url"]
+      },
+      "Site info": {
+        query: "site",
+        select: {
+          title: true,
+          url: true,
+          email: "page('about').email",
+          social: {
+            query: "page('about').social.toStructure",
+            select: ["platform", "url"]
+          },
+          notes: {
+            query: "page('notes').children",
+            select: ["title", "url"]
+          },
+          photography: {
+            query: "page('photography').children",
+            select: ["title", "url"]
+          }
+        }
       }
     };
 
@@ -129,17 +157,16 @@
 
     // generate sidebar entries for examples
     for (const example in examples) {
-      const dom = document.createElement('li');
-      const code = document.createElement('code')
-      code.innerText = example;
-      dom.appendChild(code);
+      const button = document.createElement('button');
+      button.type = "button";
+      button.innerText = example;
 
-      dom.addEventListener("click", () => {
+      button.addEventListener("click", () => {
         editor.setValue(prettyJson(examples[example]));
         query();
       });
 
-      samples.appendChild(dom);
+      samples.appendChild(button);
     }
 
     // insert the default example and

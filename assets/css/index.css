@@ -1,114 +1,57 @@
-* {
-  margin: 0;
-  padding: 0;
-}
-
 html {
-  font-family: sans-serif;
   overflow: hidden;
-  background: #313740;
-  color: #fff;
+  background: #0f111a;
+  color: var(--color-white);
 }
 
 body {
   height: 100%;
-}
-
-a {
-  color: inherit;
+  font-family: var(--font-mono);
 }
 
 form {
   display: grid;
   grid-template-columns: 18rem 1fr 1fr;
-  grid-template-rows: 1fr 3rem;
   height: 100%;
 }
 
-.sidebar {
-  grid-row: 1 / span 2;
-  padding: 1.5rem;
-}
-
-.sidebar header {
-  margin-bottom: 3rem;
-}
-
-.sidebar h1 {
-  margin-bottom: 1rem;
-}
-
 .sidebar .version {
-  font-size: 0.5em;
+  color: var(--color-green-400);
 }
 
-.sidebar .intro {
-  font-size: 1.2em;
-  font-family: monospace;
-  margin-bottom: 1rem;
+.sidebar .samples {
+  gap: 0.25rem;
 }
 
-.links a {
-  font-size: 0.9em;
-  text-decoration: none;
-  color: #f0c674;
+.sidebar .link {
+  text-decoration-thickness: 1px;
 }
 
-.sidebar label {
-  font-weight: bold;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
-.sidebar li {
-  list-style: none;
-  margin-bottom: 0.5rem;
-  padding: 0.35em 0.5em 0.5em;
-  border-radius: 0.35rem;
+.sidebar button {
+  width: 100%;
+  text-align: left;
+  border-radius: var(--rounded);
+  background: rgba(255, 255, 255, 0.0625);
+  padding: 0.75rem 1rem;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.25);
-  cursor: pointer;
+  color: var(--color-purple-400);
 }
 
-.sidebar li:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-input,
-textarea {
-  font: inherit;
-  padding: 0.5rem;
-  border: 0;
-  border-bottom: 1px solid #ddd;
-  font-family: monospace;
-  font-size: 1.25rem;
-  line-height: 1.5em;
-}
-
-textarea {
-  resize: none;
-  opacity: 0;
+.sidebar button[type="submit"] {
+  color: #000;
+  text-align: center;
+  font-weight: var(--font-bold);
+  background: var(--color-purple-500);
+  box-shadow: var(--shadow-xl);
 }
 
 .CodeMirror {
   padding: 0;
-  font-size: 1.25rem;
-  line-height: 1.5em;
+  font-size: var(--text-sm);
+  line-height: 1.75em;
   height: 100% !important;
 }
 
-input[type="submit"] {
-  background: #f0c674;
-  border-bottom: 0;
-  line-height: 1;
-  padding: 1rem;
-  grid-column: span 2;
-  cursor: pointer;
-}
-input:focus {
-  outline: 0;
-}
-
-.CodeMirror:last-of-type {
+.CodeMirror {
   border-left: 1px solid rgba(255, 255, 255, 0.1);
 }

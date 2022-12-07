@@ -77,11 +77,11 @@
 }
 
 .cm-s-material-ocean .cm-atom {
-  color: #f78c6c;
+  color: var(--color-orange-500);
 }
 
 .cm-s-material-ocean .cm-number {
-  color: #ff5370;
+  color: var(--color-pink-600);
 }
 
 .cm-s-material-ocean .cm-def {
@@ -89,7 +89,7 @@
 }
 
 .cm-s-material-ocean .cm-string {
-  color: #c3e88d;
+  color: var(--color-green-400);
 }
 
 .cm-s-material-ocean .cm-string-2 {
@@ -117,7 +117,7 @@
 }
 
 .cm-s-material-ocean .cm-property {
-  color: #c792ea;
+  color: var(--color-purple-400);
 }
 
 .cm-s-material-ocean .cm-qualifier {
