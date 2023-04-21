@@ -1,3 +1,7 @@
+:root {
+  --border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 html {
   overflow: hidden;
   background: #0f111a;
@@ -9,10 +13,8 @@ body {
   font-family: var(--font-mono);
 }
 
-form {
-  display: grid;
-  grid-template-columns: 18rem 1fr 1fr;
-  height: 100%;
+.sidebar {
+  border-bottom: var(--border);
 }
 
 .sidebar .version {
@@ -30,7 +32,7 @@ form {
 
 .sidebar .links {
   display: grid;
-  gap: .25rem;
+  gap: 0.25rem;
 }
 .sidebar .links a {
   position: relative;
@@ -64,9 +66,26 @@ form {
   padding: 0;
   font-size: var(--text-sm);
   line-height: 1.75em;
-  height: 100% !important;
 }
 
 .CodeMirror {
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: var(--border);
+  border-bottom: var(--border);
+}
+
+@media screen and (min-width: 50rem) {
+  form {
+    display: grid;
+    grid-template-columns: 18rem 1fr 1fr;
+    height: 100%;
+  }
+
+  .sidebar {
+    border-bottom: 0;
+  }
+
+  .CodeMirror {
+    height: 100% !important;
+    border-bottom: 0;
+  }
 }
