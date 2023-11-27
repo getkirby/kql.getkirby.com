@@ -3,6 +3,7 @@
 	"account.delete": "Usuń swoje konto",
 	"account.delete.confirm": "Czy na pewno chcesz usunąć swoje konto? Zostaniesz natychmiast wylogowany. Twojego konta nie da się odzyskać.",
 
+	"activate": "Aktywuj",
 	"add": "Dodaj",
 	"alpha": "Alfa",
 	"author": "Autor",
@@ -47,11 +48,13 @@
 	"dialog.users.empty": "Brak użytkowników do wyboru",
 
 	"dimensions": "Wymiary",
+	"disable": "Wyłącz",
 	"disabled": "Wyłączone",
 	"discard": "Odrzu\u0107",
 
 	"drawer.fields.empty": "Ten panel nie zawiera żadnych pól",
 
+	"domain": "Domena",
 	"download": "Pobierz",
 	"duplicate": "Zduplikuj",
 
@@ -130,9 +133,13 @@
 	"error.layout.validation.block": "Wystąpił błąd w polu „{field}” w bloku {blockIndex} o typie bloku „{fieldset}” w układzie {layoutIndex}",
 	"error.layout.validation.settings": "W ustawieniach układu {index} jest błąd",
 
-	"error.license.format": "Wprowadź poprawny klucz licencyjny",
+	"error.license.domain": "Brakuje domeny dla licencji",
 	"error.license.email": "Wprowadź poprawny adres email",
+	"error.license.format": "Please enter a valid license code",
 	"error.license.verification": "Nie udało się zweryfikować licencji",
+
+	"error.login.totp.confirm.invalid": "Nieprawidłowy kod",
+	"error.login.totp.confirm.missing": "Wpisz aktualny kod",
 
 	"error.object.validation": "Wystąpił błąd w polu „{label}”:\n{message}",
 
@@ -407,15 +414,30 @@
 	"languages.secondary.empty": "Nie ma jeszcze dodatkowych języków",
 
 	"license": "Licencja",
+	"license.activate": "Aktywuj teraz",
+	"license.activate.label": "Aktywuj swoją licencję",
+	"license.activate.domain": "Twoja licencja zostanie aktywowana na <strong>{host}</strong>.",
+	"license.activate.local": "Zamierzasz aktywować licencję Kirby dla domeny lokalnej <strong>{host}</strong>. Jeżeli ta strona będzie uruchamiana w publicznie dostępnej domenie, należy ją aktywować tam. Jeśli {host} jest domeną, dla której chcesz używać licencji, kontynuuj.",
+	"license.activated": "Aktywowana",
 	"license.buy": "Kup licencję",
-	"license.register": "Zarejestruj",
+	"license.code": "Kod",
+	"license.code.help": "Po zakupie otrzymałeś emailem kod licencyjny. Skopiuj go i wklej tutaj.",
+	"license.code.label": "Wprowadź swój kod licencji",
+	"license.status.active.info": "Zawiera nowe główne wersje do {date}",
+	"license.status.active.label": "Ważna licencja",
+	"license.status.demo.info": "This is a demo installation",
+	"license.status.demo.label": "Demo",
+	"license.status.inactive.info": "Odnów licencję, by zaktualizować do nowych wersji głównych",
+	"license.status.inactive.label": "Brak nowych wersji głównych",
+	"license.status.legacy.bubble": "Gotowy/-a do odnowienia swojej licencji?",
+	"license.status.legacy.info": "Twoja licencja nie obejmuje tej wersji",
+	"license.status.legacy.label": "Odnów swoją licencję",
+	"license.status.missing.bubble": "Gotowy/-a do uruchomienia strony?",
+	"license.status.missing.info": "Brak ważnej licencji",
+	"license.status.missing.label": "Aktywuj swoją licencję",
 	"license.manage": "Zarządzaj swoimi licencjami",
-	"license.register.help": "Po zakupieniu licencji otrzymałaś/-eś mailem klucz. Skopiuj go i wklej tutaj, aby dokonać rejestracji.",
-	"license.register.label": "Wprowadź swój kod licencji",
-	"license.register.domain": "Twoja licencja zostanie zarejestrowana na <strong>{host}</strong>.",
-	"license.register.local": "Zamierzasz zarejestrować licencję dla swojej domeny lokalnej <strong>{host}</strong>. Jeśli ta witryna zostanie wdrożona w domenie ogólnodostępnej, zarejestruj ją tam. Jeżeli {host} jest faktycznie domeną, do której chcesz przypisać licencję, kontynuuj.",
-	"license.register.success": "Dziękujemy za wspieranie Kirby",
-	"license.unregistered": "To jest niezarejestrowana wersja demonstracyjna Kirby",
+	"license.purchased": "Zakupiona",
+	"license.success": "Dziękujemy za wspieranie Kirby",
 	"license.unregistered.label": "Niezarejestrowane",
 
 	"link": "Link",
@@ -434,7 +456,9 @@
 	"login.code.label.login": "Kod logowania się",
 	"login.code.label.password-reset": "Kod resetowania hasła",
 	"login.code.placeholder.email": "000 000",
+	"login.code.placeholder.totp": "000000",
 	"login.code.text.email": "Jeśli Twój adres email jest zarejestrowany, żądany kod został wysłany na Twoją skrzynkę.",
+	"login.code.text.totp": "Wprowadź jednorazowy kod z aplikacji uwierzytelniającej.",
 	"login.email.login.body": "Cześć {user.nameOrEmail},\n\nNiedawno poprosiłaś/-eś o kod do zalogowania się do panelu strony {site}.\nPoniższy kod do zalogowania się będzie ważny przez {timeout} minut:\n\n{code}\n\nJeżeli nie zażądałaś/-eś kodu do logowania się, zignoruj tę wiadomość e-mail lub skontaktuj się z administratorem, jeśli masz pytania.\nZe względów bezpieczeństwa NIE przesyłaj dalej tego e-maila.",
 	"login.email.login.subject": "Twój kod logowania się",
 	"login.email.password-reset.body": "Cześć {user.nameOrEmail},\n\nNiedawno poprosiłaś/-eś o kod resetowania hasła do panelu strony {site}.\nPoniższy kod resetowania hasła będzie ważny przez {timeout} minut:\n\n{code}\n\nJeżeli nie zażądałaś/-eś kodu resetowania hasła, zignoruj tę wiadomość e-mail lub skontaktuj się z administratorem, jeśli masz pytania. \nZe względów bezpieczeństwa NIE przesyłaj dalej tego e-maila. ",
@@ -445,6 +469,20 @@
 	"login.toggleText.code.email-password": "Zaloguj się za pomocą hasła",
 	"login.toggleText.password-reset.email": "Zapomniałeś/-aś hasła?",
 	"login.toggleText.password-reset.email-password": "← Powrót do logowania",
+	"login.totp.enable.option": "Ustaw kody jednorazowe",
+	"login.totp.enable.intro": "Aplikacje uwierzytelniające mogą generować jednorazowe kody, które są używane jako drugi czynnik podczas logowania się na konto.",
+	"login.totp.enable.qr.label": "1. Zeskanuj ten kod QR",
+	"login.totp.enable.qr.help": "Nie możesz zeskanować? Dodaj ręcznie klucz instalacyjny <code>{secret}</code> do aplikacji uwierzytelniającej.",
+	"login.totp.enable.confirm.headline": "2. Potwierdź wygenerowanym kodem",
+	"login.totp.enable.confirm.text": "Aplikacja generuje nowy kod jednorazowy co 30 sekund. Wprowadź aktualny kod, aby dokończyć konfigurację:",
+	"login.totp.enable.confirm.label": "Aktualny kod",
+	"login.totp.enable.confirm.help": "Po tej konfiguracji będziemy prosić o jednorazowy kod przy każdym logowaniu.",
+	"login.totp.enable.success": "Kody jednorazowe włączone",
+	"login.totp.disable.option": "Wyłącz kody jednorazowe",
+	"login.totp.disable.label": "Wprowadź swoje hasło, aby wyłączyć kody jednorazowe",
+	"login.totp.disable.help": "W przyszłości podczas logowania wymagany będzie inny drugi czynnik, taki jak kod logowania wysłany emailem. Kody jednorazowe możesz zawsze skonfigurować później.",
+	"login.totp.disable.admin": "<p>Spowoduje to wyłączenie kodów jednorazowych dla użytkownika <strong>{user}</strong>.</p><p>W przyszłości podczas logowania wymagany będzie inny drugi czynnik, taki jak kod logowania wysłany emailem. {user} może ponownie skonfigurować kody jednorazowe po następnym zalogowaniu.</p>",
+	"login.totp.disable.success": "Kody jednorazowe wyłączone",
 
 	"logout": "Wyloguj się",
 
@@ -481,6 +519,7 @@
 	"option": "Opcja",
 	"options": "Opcje",
 	"options.none": "Brak opcji",
+	"options.all": "Pokaż wszystkie {count} opcje/-i",
 
 	"orientation": "Orientacja",
 	"orientation.landscape": "Pozioma",
@@ -532,6 +571,7 @@
 	"preview": "Podgląd",
 	"remove": "Usuń",
 	"rename": "Zmień nazwę",
+	"renew": "Odnów",
 	"replace": "Zamie\u0144",
 	"replace.with": "Zamień z",
 	"retry": "Pon\u00f3w pr\u00f3b\u0119",
@@ -550,7 +590,7 @@
 	"save": "Zapisz",
 	"search": "Szukaj",
 	"search.min": "Aby wyszukać, wprowadź co najmniej {min} znaków",
-	"search.all": "Pokaż wzystkie",
+	"search.all": "Pokaż wszystkie {count} wyniki/-ów",
 	"search.results.none": "Brak wyników",
 
 	"section.invalid": "Sekcja jest nieprawidłowa",
@@ -569,9 +609,12 @@
 	"split": "Podziel",
 
 	"stats.empty": "Brak raportów",
+	"status": "Status",
+
 	"system.issues.content": "Zdaje się, że folder „content” jest wystawiony na publiczny dostęp",
 	"system.issues.eol.kirby": "Twoja zainstalowana wersja Kirby osiągnęła koniec okresu wsparcia i nie będzie otrzymywać dalszych aktualizacji zabezpieczeń",
 	"system.issues.eol.plugin": "Twoja zainstalowana wersja wtyczki { plugin } osiągnęła koniec okresu wsparcia i nie będzie otrzymywać dalszych aktualizacji zabezpieczeń",
+	"system.issues.eol.php": "Zainstalowana wersja PHP { release } osiągnęła koniec okresu eksploatacji i nie będzie otrzymywać dalszych aktualizacji zabezpieczeń.",
 	"system.issues.debug": "Debugowanie musi być wyłączone w środowisku produkcyjnym",
 	"system.issues.git": "Zdaje się, że folder „.git” jest wystawiony na publiczny dostęp",
 	"system.issues.https": "Zalecamy HTTPS dla wszystkich Twoich witryn",
@@ -623,6 +666,8 @@
 	"translation.direction": "ltr",
 	"translation.name": "Polski",
 	"translation.locale": "pl_PL",
+
+	"type": "Typ",
 
 	"upload": "Prześlij",
 	"upload.error.cantMove": "Przesłany plik nie mógł być przeniesiony",
