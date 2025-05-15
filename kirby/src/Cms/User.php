@@ -5,7 +5,6 @@ namespace Kirby\Cms;
 use Closure;
 use Exception;
 use Kirby\Content\Field;
-use Kirby\Content\VersionId;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\NotFoundException;
 use Kirby\Exception\PermissionException;
@@ -30,6 +29,7 @@ class User extends ModelWithContent
 {
 	use HasFiles;
 	use HasMethods;
+	use HasModels;
 	/**
 	 * @use \Kirby\Cms\HasSiblings<\Kirby\Cms\Users>
 	 */
@@ -43,11 +43,6 @@ class User extends ModelWithContent
 	 * @todo Remove when support for PHP 8.2 is dropped
 	 */
 	public static array $methods = [];
-
-	/**
-	 * Registry with all User models
-	 */
-	public static array $models = [];
 
 	protected UserBlueprint|null $blueprint = null;
 	protected array $credentials;
@@ -87,9 +82,15 @@ class User extends ModelWithContent
 		$this->password = $props['password'] ?? null;
 		$this->role     = $set('role', fn ($role) => Str::lower(trim($role)));
 
+		// Set blueprint before setting content
+		// or translations in the parent constructor.
+		// Otherwise, the blueprint definition cannot be
+		// used when creating the right field values
+		// for the content.
+		$this->setBlueprint($props['blueprint'] ?? null);
+
 		parent::__construct($props);
 
-		$this->setBlueprint($props['blueprint'] ?? null);
 		$this->setFiles($props['files'] ?? null);
 	}
 
@@ -208,7 +209,7 @@ class User extends ModelWithContent
 	 */
 	public function exists(): bool
 	{
-		return $this->version(VersionId::latest())->exists('default');
+		return $this->version('latest')->exists('default');
 	}
 
 	/**
@@ -218,11 +219,7 @@ class User extends ModelWithContent
 	 */
 	public static function factory(mixed $props): static
 	{
-		if (empty($props['model']) === false) {
-			return static::model($props['model'], $props);
-		}
-
-		return new static($props);
+		return static::model($props['model'] ?? $props['role'] ?? 'default', $props);
 	}
 
 	/**
@@ -430,12 +427,21 @@ class User extends ModelWithContent
 	}
 
 	/**
-	 * Returns the root to the media folder for the user
+	 * Returns the absolute path to the media folder for the user
+	 * @internal
+	 */
+	public function mediaDir(): string
+	{
+		return $this->kirby()->root('media') . '/users/' . $this->id();
+	}
+
+	/**
+	 * @see `::mediaDir`
 	 * @internal
 	 */
 	public function mediaRoot(): string
 	{
-		return $this->kirby()->root('media') . '/users/' . $this->id();
+		return $this->mediaDir();
 	}
 
 	/**
@@ -448,23 +454,6 @@ class User extends ModelWithContent
 	}
 
 	/**
-	 * Creates a user model if it has been registered
-	 * @internal
-	 */
-	public static function model(string $name, array $props = []): static
-	{
-		if ($class = (static::$models[$name] ?? null)) {
-			$object = new $class($props);
-
-			if ($object instanceof self) {
-				return $object;
-			}
-		}
-
-		return new static($props);
-	}
-
-	/**
 	 * Returns the last modification date of the user
 	 */
 	public function modified(
@@ -472,7 +461,7 @@ class User extends ModelWithContent
 		string|null $handler = null,
 		string|null $languageCode = null
 	): int|string|false {
-		$modifiedContent = $this->version(VersionId::latest())->modified($languageCode ?? 'current');
+		$modifiedContent = $this->version('latest')->modified($languageCode ?? 'current');
 		$modifiedIndex   = F::modified($this->root() . '/index.php');
 		$modifiedTotal   = max([$modifiedContent, $modifiedIndex]);
 
@@ -566,7 +555,7 @@ class User extends ModelWithContent
 
 		return $this->role =
 			$this->kirby()->roles()->find($name) ??
-			Role::nobody();
+			Role::defaultNobody();
 	}
 
 	/**

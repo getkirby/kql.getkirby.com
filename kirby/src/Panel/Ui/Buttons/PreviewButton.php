@@ -22,10 +22,9 @@ class PreviewButton extends ViewButton
 	) {
 		parent::__construct(
 			class: 'k-preview-view-button',
-			icon: 'open',
+			icon: 'window',
 			link: $link,
-			target: '_blank',
-			title: I18n::translate('open')
+			title: I18n::translate('preview')
 		);
 	}
 }

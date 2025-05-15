@@ -59,17 +59,6 @@ class VersionId implements Stringable
 	}
 
 	/**
-	 * List of available version ids
-	 */
-	public static function all(): array
-	{
-		return [
-			static::latest(),
-			static::changes(),
-		];
-	}
-
-	/**
 	 * Creates a VersionId instance for the latest content changes
 	 */
 	public static function changes(): static
@@ -90,11 +79,11 @@ class VersionId implements Stringable
 	}
 
 	/**
-	 * Compares a string value with the id value
+	 * Compares a VersionId object or string value with this id
 	 */
-	public function is(string $value): bool
+	public function is(VersionId|string $id): bool
 	{
-		return $value === $this->value;
+		return static::from($id)->value === $this->value;
 	}
 
 	/**

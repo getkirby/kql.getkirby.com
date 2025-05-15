@@ -87,9 +87,15 @@ class Site extends ModelWithContent
 		$this->page        = $props['page'] ?? null;
 		$this->url         = $props['url'] ?? null;
 
+		// Set blueprint before setting content
+		// or translations in the parent constructor.
+		// Otherwise, the blueprint definition cannot be
+		// used when creating the right field values
+		// for the content.
+		$this->setBlueprint($props['blueprint'] ?? null);
+
 		parent::__construct($props);
 
-		$this->setBlueprint($props['blueprint'] ?? null);
 		$this->setChildren($props['children'] ?? null);
 		$this->setDrafts($props['drafts'] ?? null);
 		$this->setFiles($props['files'] ?? null);
@@ -188,7 +194,9 @@ class Site extends ModelWithContent
 		array $data,
 		string|null $languageCode = null
 	): array {
-		return A::prepend($data, ['title' => $data['title'] ?? null]);
+		return A::prepend($data, [
+			'title' => $data['title'] ?? null
+		]);
 	}
 
 	/**
@@ -267,12 +275,21 @@ class Site extends ModelWithContent
 	}
 
 	/**
-	 * Returns the root to the media folder for the site
+	 * Returns the absolute path to the media folder for the page
+	 * @internal
+	 */
+	public function mediaDir(): string
+	{
+		return $this->kirby()->root('media') . '/site';
+	}
+
+	/**
+	 * @see `::mediaDir`
 	 * @internal
 	 */
 	public function mediaRoot(): string
 	{
-		return $this->kirby()->root('media') . '/site';
+		return $this->mediaDir();
 	}
 
 	/**
@@ -354,6 +371,11 @@ class Site extends ModelWithContent
 	 */
 	public function previewUrl(VersionId|string $versionId = 'latest'): string|null
 	{
+		// the site previews the home page and thus needs to check permissions for it
+		if ($this->homePage()?->permissions()->can('preview') !== true) {
+			return null;
+		}
+
 		return $this->version($versionId)->url();
 	}
 
