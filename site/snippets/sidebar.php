@@ -14,7 +14,7 @@
 		<nav class="links">
 			<a class="link mb-6" href="https://github.com/getkirby/kql">Documentation</a>
 			<a class="link" href="https://github.com/getkirby/eleventykit">KQL + 11ty</a>
-			<a class="link" href="https://nuxt-kql.jhnn.dev/">KQL + Nuxt</a>
+			<a class="link" href="https://github.com/johannschopplich/cacao-kit-frontend">KQL + Nuxt</a>
 		</nav>
 	</header>
 
