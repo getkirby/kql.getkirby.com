@@ -111,6 +111,9 @@
             select: ["title", "url"]
           }
         }
+      },
+      "Kirby version": {
+        query: "kirby.version",
       }
     };
 
