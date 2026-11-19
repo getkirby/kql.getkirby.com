@@ -11,22 +11,22 @@
  */
 return function ($page) {
 
-    $tag   = urldecode(param('tag') ?? '');
-    /**
-     * We use the collection helper to fetch the notes collection defined in `/site/collections/notes.php`
-     * 
-     * More about collections:
-     * https://getkirby.com/docs/guide/templates/collections
-     */
-    $notes = collection('notes');
+	$tag   = urldecode(param('tag') ?? '');
+	/**
+	 * We use the collection helper to fetch the notes collection defined in `/site/collections/notes.php`
+	 *
+	 * More about collections:
+	 * https://getkirby.com/docs/guide/templates/collections
+	 */
+	$notes = collection('notes');
 
-    if (empty($tag) === false) {
-        $notes = $notes->filterBy('tags', $tag, ',');
-    }
+	if (empty($tag) === false) {
+		$notes = $notes->filterBy('tags', $tag, ',');
+	}
 
-    return [
-        'tag'   => $tag,
-        'notes' => $notes->paginate(6)
-    ];
+	return [
+		'tag'   => $tag,
+		'notes' => $notes->paginate(6)
+	];
 
 };

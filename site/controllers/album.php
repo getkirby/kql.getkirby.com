@@ -10,10 +10,10 @@
  */
 return function ($page) {
 
-    $gallery = $page->images()->sortBy('sort', 'filename');
+	$gallery = $page->images()->sortBy('sort', 'filename');
 
-    return [
-        'gallery' => $gallery
-    ];
+	return [
+		'gallery' => $gallery
+	];
 
 };

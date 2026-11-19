@@ -14,17 +14,17 @@
 <body>
 
   <form id="form" method="post">
-    <?php snippet("sidebar") ?>
+    <?php snippet('sidebar') ?>
     <textarea id="query" placeholder="Query …"></textarea>
     <textarea id="result" placeholder="Response …"></textarea>
   </form>
 
   <?= js([
-    'assets/codemirror/lib/codemirror.js',
-    'assets/codemirror/addon/edit/matchbrackets.js',
-    'assets/codemirror/addon/comment/continuecomment.js',
-    'assets/codemirror/addon/comment/comment.js',
-    'assets/codemirror/mode/javascript/javascript.js',
+  	'assets/codemirror/lib/codemirror.js',
+  	'assets/codemirror/addon/edit/matchbrackets.js',
+  	'assets/codemirror/addon/comment/continuecomment.js',
+  	'assets/codemirror/addon/comment/comment.js',
+  	'assets/codemirror/mode/javascript/javascript.js',
   ]) ?>
 
   <script>
