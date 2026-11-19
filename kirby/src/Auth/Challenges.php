@@ -25,6 +25,8 @@ class Challenges
 	/**
 	 * Available auth challenge classes
 	 * from the core and plugins
+	 *
+	 * @var array<string, class-string<Challenge>>
 	 */
 	public static array $challenges = [];
 
@@ -34,11 +36,19 @@ class Challenges
 	) {
 	}
 
+	/**
+	 * Returns the types of all enabled challenges
+	 * that are available for the user and purpose/mode
+	 *
+	 * @return list<string>
+	 */
 	public function available(User $user, string $mode): array
 	{
+		// not caught on purpose: skipping a broken challenge could drop the
+		// user's only second factor, so `PasswordMethod::has2FA()` would skip 2FA
 		$available = array_values(A::filter(
 			$this->enabled(),
-			fn ($type) => $this->class($type)::isAvailable($user, $mode)
+			fn ($type) => $this->get($type, $user, $mode)->isAvailable()
 		));
 
 		// a single-factor flow (e.g. the `code` login method or a
@@ -57,6 +67,9 @@ class Challenges
 
 	/**
 	 * Returns the challenge handler class for the provided type
+	 *
+	 * @return class-string<Challenge>
+	 * @throws NotFoundException If no valid class is registered for the type
 	 */
 	public function class(string $type): string
 	{
@@ -83,6 +96,37 @@ class Challenges
 	}
 
 	/**
+	 * Returns normalized array of configured challenges;
+	 * challenges that are set to `false` are left out
+	 *
+	 * @return array<string, array>
+	 */
+	public function config(): array
+	{
+		$default    = ['webauthn', 'totp', 'email'];
+		$challenges = $this->kirby->option('auth.challenges', $default);
+		$normalized = [];
+
+		foreach (A::wrap($challenges) as $type => $options) {
+			if (is_int($type) === true) {
+				// ['email']
+				$type    = $options;
+				$options = [];
+			} elseif ($options === true) {
+				// ['email' => true]
+				$options = [];
+			} elseif ($options === false) {
+				// ['email' => false]
+				continue;
+			}
+
+			$normalized[$type] = $options;
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Creates the first available challenge for the user
 	 * and stores state in the session
 	 */
@@ -104,7 +148,7 @@ class Challenges
 		$this->auth->limits()->track($email, triggerHook: false);
 
 		// try to find the provided user
-		$user = $this->kirby->user($email);
+		$user = $this->kirby->users()->findByEmail($email);
 
 		if ($user === null) {
 			$this->kirby->trigger('user.login:failed', ['email' => $email]);
@@ -123,17 +167,24 @@ class Challenges
 	}
 
 	/**
-	 * Returns normalized array of enabled challenges
+	 * Returns the types of all enabled challenges
 	 * by the `auth.challenges` config option
+	 *
+	 * @return list<string>
 	 */
 	public function enabled(): array
 	{
-		$config = $this->kirby->option('auth.challenges', ['webauthn', 'totp', 'email']);
+		$enabled = [];
 
-		return array_values(A::filter(
-			A::wrap($config),
-			fn ($type) => $this->class($type)::isEnabled($this->auth)
-		));
+		foreach ($this->config() as $type => $options) {
+			$class = $this->class($type);
+
+			if ($class::isEnabled($this->auth, $type, $options) === true) {
+				$enabled[] = $type;
+			}
+		}
+
+		return $enabled;
 	}
 
 	/**
@@ -143,7 +194,6 @@ class Challenges
 	 */
 	protected function ensureActiveChallenge(Session $session): string
 	{
-		// check if we have an active challenge
 		$email = $session->get('kirby.challenge.email');
 		$type  = $session->get('kirby.challenge.type');
 
@@ -174,6 +224,16 @@ class Challenges
 	}
 
 	/**
+	 * Returns the challenge type for a pending session without
+	 * a challenge: the one a user without secrets would get
+	 */
+	public function fallback(string $email, string $mode): string|null
+	{
+		$user = new User(['email' => $email]);
+		return $this->available($user, $mode)[0] ?? A::last($this->enabled());
+	}
+
+	/**
 	 * Returns the first available auth challenge
 	 * for the user and purpose/mode
 	 */
@@ -189,7 +249,7 @@ class Challenges
 	 * (This is based on the config. You might need to check
 	 * yourself if the method should be available in your context)
 	 *
-	 * @param int|null $timeout Lifetime in seconds, not an expiry timestamp
+	 * @param $timeout Lifetime in seconds, not an expiry timestamp
 	 */
 	public function get(
 		string $type,
@@ -202,8 +262,10 @@ class Challenges
 
 		return new $challenge(
 			user:    $user,
+			type:    $type,
 			mode:    $mode,
-			timeout: $timeout
+			timeout: $timeout,
+			options: $this->config()[$type] ?? []
 		);
 	}
 
@@ -275,7 +337,7 @@ class Challenges
 				);
 			}
 
-			$user = $this->kirby->user($email);
+			$user = $this->kirby->users()->findByEmail($email);
 
 			// Rate-limiting:
 			// Each switch can trigger side effects (e.g. email sends),
@@ -320,6 +382,9 @@ class Challenges
 		}
 	}
 
+	/**
+	 * Returns the lifetime of new challenges in seconds
+	 */
 	public function timeout(): int|null
 	{
 		return $this->kirby->option('auth.challenge.timeout', 10 * 60);
@@ -336,7 +401,7 @@ class Challenges
 		// ensure we have an active challenge for a valid user
 		$this->ensureNotTimeout($session);
 		$email = $this->ensureActiveChallenge($session);
-		$user  = $this->kirby->user($email);
+		$user  = $this->kirby->users()->findByEmail($email);
 
 		if ($user === null) {
 			throw new UserNotFoundException(name: $email);
@@ -344,13 +409,12 @@ class Challenges
 
 		$type      = $session->get('kirby.challenge.type');
 		$mode      = $session->get('kirby.challenge.mode');
-		$data      = $session->get('kirby.challenge.data');
-		$data      = Pending::from($data ?? []);
+		$pending   = Pending::from($session->get('kirby.challenge.data') ?? []);
 		$challenge = $this->get($type, $user, $mode);
 
 		$challenge->attempt(
 			input:      $input,
-			pending:    $data,
+			pending:    $pending,
 			invalidate: fn () => $this->clear($session)
 		);
 

@@ -12,6 +12,7 @@ use Kirby\Data\Json;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\NotFoundException;
 use Kirby\Form\Form;
+use Kirby\Form\Interface\ProvidesAcceptedFileBlueprints;
 use Kirby\Form\Mixin\EmptyState;
 use Kirby\Form\Mixin\Max;
 use Kirby\Form\Mixin\Min;
@@ -29,7 +30,7 @@ use Throwable;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  */
-class BlocksField extends InputField
+class BlocksField extends InputField implements ProvidesAcceptedFileBlueprints
 {
 	use EmptyState;
 	use Max;
@@ -49,6 +50,8 @@ class BlocksField extends InputField
 
 	/**
 	 * Cache for all Form instances for each fieldset
+	 *
+	 * @var array<string, Form>
 	 */
 	protected array $forms;
 
@@ -57,8 +60,25 @@ class BlocksField extends InputField
 	 */
 	#[Prop]
 	protected string $group = 'blocks';
-
 	protected array $value = [];
+
+	/**
+	 * Collects the accepted file blueprints of all fieldsets
+	 *
+	 * @return list<string>
+	 * @since 6.0.0
+	 */
+	public function acceptedFileBlueprints(): array
+	{
+		$blueprints = [];
+
+		foreach ($this->fieldsets() as $fieldset) {
+			$form       = $this->form($fieldset->fields());
+			$blueprints = [...$blueprints, ...$form->fields()->acceptedFileBlueprints()];
+		}
+
+		return $blueprints;
+	}
 
 	public function api(): array
 	{
@@ -105,9 +125,7 @@ class BlocksField extends InputField
 					string $fieldName,
 					string|null $path = null
 				) use ($field) {
-					/**
-					 * @var Api $api
-					 */
+					/** @var Api $api */
 					$api    = $this;
 					$fields = $field->fields($fieldsetType);
 					$field  = $field->form($fields)->field($fieldName);
@@ -127,6 +145,10 @@ class BlocksField extends InputField
 		];
 	}
 
+	/**
+	 * @param 'toFormValues'|'toStoredValues' $to
+	 * @return list<array>
+	 */
 	public function blocksToValues(
 		array $blocks,
 		string $to = 'toFormValues'
@@ -136,11 +158,7 @@ class BlocksField extends InputField
 		foreach ($blocks as $block) {
 			try {
 				$form = $this->fieldsetForm($block['type']);
-
-				// overwrite the block content with form values
 				$block['content'] = $form->reset()->fill(input: $block['content'])->$to();
-
-				// create id if not exists
 				$block['id'] ??= Str::uuid();
 			} catch (Throwable) {
 				// skip invalid blocks
@@ -152,6 +170,9 @@ class BlocksField extends InputField
 		return $result;
 	}
 
+	/**
+	 * @return array|null
+	 */
 	public function default(): mixed
 	{
 		$default = $this->default;
@@ -160,7 +181,6 @@ class BlocksField extends InputField
 			return null;
 		}
 
-		// set id for blocks if not exists
 		array_walk($default, function (&$block) {
 			$block['id'] ??= Str::uuid();
 		});
@@ -276,7 +296,8 @@ class BlocksField extends InputField
 	 * Paste action for blocks:
 	 *  - generates new uuids for the blocks
 	 *  - filters only supported fieldsets
-	 *  - applies max limit if defined
+	 *
+	 * @return list<array>
 	 */
 	public function pasteBlocks(array $blocks): array
 	{
@@ -305,6 +326,9 @@ class BlocksField extends InputField
 		];
 	}
 
+	/**
+	 * @return string
+	 */
 	public function toStoredValue(): mixed
 	{
 		$value  = parent::toStoredValue();
@@ -337,15 +361,13 @@ class BlocksField extends InputField
 					);
 				}
 
-				$forms  = [];
-				$index  = 0;
+				$forms = [];
+				$index = 0;
 
 				foreach ($value as $block) {
 					$index++;
 					$type = $block['type'];
 
-					// create the form for the block
-					// and cache it for later use
 					if (isset($forms[$type]) === false) {
 						try {
 							$fieldset     = $this->fieldset($type);
@@ -357,19 +379,17 @@ class BlocksField extends InputField
 						}
 					}
 
-					// overwrite the content with the serialized form
 					$form = $forms[$type]->reset()->fill($block['content']);
 
 					foreach ($form->fields() as $field) {
 						$errors = $field->errors();
 
-						// rough first validation
-						if (count($errors) > 0) {
+						if ($errors !== []) {
 							throw new InvalidArgumentException(
-								key:'blocks.validation',
+								key: 'blocks.validation',
 								data: [
 									'field'    => $field->label(),
-									'fieldset' => $fieldset->name(),
+									'fieldset' => $this->fieldset($type)->name(),
 									'index'    => $index
 								]
 							);

@@ -24,9 +24,14 @@ class Items extends Collection
 
 	/**
 	 * All registered items methods
+	 *
+	 * @var array<string, Closure>
 	 */
 	public static array $methods = [];
 
+	/**
+	 * @var array<string, mixed>
+	 */
 	protected array $options;
 
 	/**
@@ -34,6 +39,12 @@ class Items extends Collection
 	 */
 	protected object|null $parent = null;
 
+	/**
+	 * Creates a new collection of items
+	 *
+	 * @param iterable<TValue> $objects
+	 * @param array<string, mixed> $options Options incl. the `parent` model and `field`
+	 */
 	public function __construct($objects = [], array $options = [])
 	{
 		$this->options = $options;
@@ -44,18 +55,20 @@ class Items extends Collection
 	}
 
 	/**
-	 * Creates a new item collection from a
+	 * Creates a new item collection from
 	 * an array of item props
+	 *
+	 * @param array<array<string, mixed>>|null $items
+	 * @param array<string, mixed> $params Collection options, see `::__construct()`
 	 */
 	public static function factory(
 		array|null $items = null,
 		array $params = []
 	): static {
 		if ($items === null || $items === []) {
-			return new static();
+			return new static(options: $params);
 		}
 
-		// create a new collection of blocks
 		$collection = new static([], $params);
 
 		foreach ($items as $item) {

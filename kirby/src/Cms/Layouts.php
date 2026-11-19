@@ -2,6 +2,7 @@
 
 namespace Kirby\Cms;
 
+use Closure;
 use Kirby\Data\Json;
 use Kirby\Toolkit\Str;
 use Throwable;
@@ -21,9 +22,17 @@ class Layouts extends Items
 
 	/**
 	 * All registered layouts methods
+	 *
+	 * @var array<string, Closure>
 	 */
 	public static array $methods = [];
 
+	/**
+	 * Creates a new layouts collection from an array of
+	 * layouts, a single layout or an array of blocks
+	 *
+	 * @param array<string, mixed> $params Collection options, see `Items::__construct()`
+	 */
 	public static function factory(
 		array|null $items = null,
 		array $params = []
@@ -95,18 +104,16 @@ class Layouts extends Items
 	 * Converts layouts to blocks
 	 * @since 3.6.0
 	 *
-	 * @param bool $includeHidden Sets whether to include hidden blocks
+	 * @param $includeHidden Sets whether to include hidden blocks
 	 */
 	public function toBlocks(bool $includeHidden = false): Blocks
 	{
 		$blocks = [];
 
-		if ($this->isNotEmpty() === true) {
-			foreach ($this->data() as $layout) {
-				foreach ($layout->columns() as $column) {
-					foreach ($column->blocks($includeHidden) as $block) {
-						$blocks[] = $block->toArray();
-					}
+		foreach ($this->data() as $layout) {
+			foreach ($layout->columns() as $column) {
+				foreach ($column->blocks($includeHidden) as $block) {
+					$blocks[] = $block->toArray();
 				}
 			}
 		}

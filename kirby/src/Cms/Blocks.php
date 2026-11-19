@@ -2,6 +2,7 @@
 
 namespace Kirby\Cms;
 
+use Closure;
 use Exception;
 use Kirby\Data\Json;
 use Kirby\Data\Yaml;
@@ -26,6 +27,8 @@ class Blocks extends Items
 
 	/**
 	 * All registered blocks methods
+	 *
+	 * @var array<string, Closure>
 	 */
 	public static array $methods = [];
 
@@ -56,7 +59,7 @@ class Blocks extends Items
 		array|null $items = null,
 		array $params = []
 	): static {
-		$items = static::extractFromLayouts($items);
+		$items = static::extractFromLayouts($items ?? []);
 
 		// @deprecated old editor format
 		// @todo block.converter remove eventually

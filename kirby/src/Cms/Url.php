@@ -35,11 +35,9 @@ class Url extends BaseUrl
 	 * Convert a string to a safe version to be used in a URL,
 	 * obeying the `slugs.maxlength` option
 	 *
-	 * @param string $string The unsafe string
-	 * @param string $separator To be used instead of space and
-	 *                          other non-word characters.
-	 * @param string $allowed List of all allowed characters (regex)
-	 * @return string The safe string
+	 * @param $separator To be used instead of space and
+	 *                  other non-word characters.
+	 * @param $allowed List of all allowed characters (regex)
 	 */
 	public static function slug(
 		string|null $string = null,
@@ -71,7 +69,7 @@ class Url extends BaseUrl
 	/**
 	 * Smart resolver for internal and external urls
 	 *
-	 * @param array|string|null $options Either an array of options for the Uri class or a language string
+	 * @param $options Either an array of options for the Uri class or a language string
 	 */
 	public static function to(
 		string|null $path = null,

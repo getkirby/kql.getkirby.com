@@ -9,8 +9,11 @@
 	"alpha": "Alpha",
 	"author": "Autor",
 	"avatar": "Foto de perfil",
+
 	"back": "Voltar",
+
 	"buttons.empty": "No buttons",
+
 	"cancel": "Cancelar",
 	"change": "Alterar",
 	"close": "Fechar",
@@ -57,7 +60,7 @@
 	"dimensions": "Dimensões",
 	"disable": "Desativar",
 	"disabled": "Desativado",
-	"discard": "Reverter",
+	"discard": "Descartar",
 
 	"drawer.fields.empty": "Esta janela não tem campos",
 
@@ -103,6 +106,8 @@
 	"error.content.lock.replace": "A versão está bloqueada e não pode ser substituída",
 	"error.content.lock.update": "A versão está bloqueada e não pode ser atualizada",
 
+	"error.csrf.invalid": "Invalid CSRF token",
+
 	"error.entries.max.plural": "Não deve adicionar mais do que {max} entradas",
 	"error.entries.max.singular": "Não deve adicionar mais do que uma entrada",
 	"error.entries.min.plural": "Deve adicionar pelo menos {min} entradas",
@@ -130,11 +135,11 @@
 	"error.file.changeTemplate": "The template for the file \"{id}\" cannot be changed",
 	"error.file.changeTemplate.invalid": "O template para o ficheiro \"{id}\" não pode ser alterado para \"{template}\" (válido: \"{blueprints}\")",
 	"error.file.changeTemplate.permission": "Não tem permissão para alterar o template do ficheiro \"{id}\"",
-	"error.file.create.permission": "The file cannot be created",
 
+	"error.file.create.permission": "The file cannot be created",
 	"error.file.delete.multiple": "Nem todos os ficheiros puderam ser eliminados. Experimente cada ficheiro restante individualmente para ver o erro específico que impede a sua eliminação.",
 	"error.file.delete.permission": "The file cannot be deleted",
-	"error.file.duplicate": "Um ficheiro com o nome \"{filename}\" já existe",
+	"error.file.duplicate": "Já existe um ficheiro com o nome \"{filename}\"",
 	"error.file.extension.forbidden": "A extensão \"{extension}\" não é permitida",
 	"error.file.extension.invalid": "Extensão inválida: {extension}",
 	"error.file.extension.missing": "As extensões de \"{filename}\" estão em falta",
@@ -163,7 +168,7 @@
 	"error.form.notSaved": "Não foi possível guardar o formulário",
 
 	"error.language.code": "Por favor, insira um código válido para o idioma",
-	"error.language.create.default": "\"{name}\" ({code}) is already set as the default language",
+	"error.language.create.default": "\"{name}\" ({code}) já se encontra definido como o idioma por defeito",
 	"error.language.create.permission": "Não tem permissões para criar um idioma",
 	"error.language.delete.default": "The default language can only be deleted if no other languages exist",
 	"error.language.delete.permission": "Não tem permissões para eliminar o idioma",
@@ -172,11 +177,11 @@
 	"error.language.name": "Por favor, insira um nome válido para o idioma",
 	"error.language.notFound": "Não foi possível encontrar o idioma",
 	"error.language.update.permission": "Não tem permissões para atualizar o idioma",
-	"error.language.variable.core": "\"{key}\" is one of Kirby's own translation strings and cannot be overwritten by a language variable",
-	"error.language.variable.duplicate": "A variable for \"{key}\" already exists",
-	"error.language.variable.key": "Please enter a valid key for the variable",
+	"error.language.variable.core": "\"{key}\" é uma das strings de tradução do próprio Kirby e não pode ser substituída por uma variável de idioma",
+	"error.language.variable.duplicate": "Já existe uma variável para \"{key}\"",
+	"error.language.variable.key": "Por favor, introduza uma chave válida para a variável",
 	"error.language.variable.notFound": "Não foi possível encontrar a variável",
-	"error.language.variable.numeric": "The variable key must not be numeric",
+	"error.language.variable.numeric": "A chave da variável não pode ser numérica",
 
 	"error.layout.validation.block": "Há um erro no campo \"{field}\" no bloco {blockIndex} a usar o tipo de bloco \"{fieldset}\" no layout {layoutIndex}",
 	"error.layout.validation.settings": "Há um erro na configuração do layout {index}",
@@ -195,9 +200,9 @@
 	"error.object.validation": "Há um erro no campo \"{label}\":\n{message}",
 
 	"error.offline": "O painel encontra-se offline de momento",
+
 	"error.page.changeSlug.errorPage": "The slug of the error page cannot be changed",
 	"error.page.changeSlug.homePage": "The slug of the home page cannot be changed",
-
 	"error.page.changeSlug.permission": "Não tem permissões para alterar o URL de \"{slug}\"",
 	"error.page.changeSlug.reserved": "O caminho das páginas de nível superior não deve começar com \"{path}\"",
 	"error.page.changeStatus.errorPage": "The status of the error page cannot be changed",
@@ -218,8 +223,8 @@
 	"error.page.delete.homePage": "The home page cannot be deleted",
 	"error.page.delete.multiple": "Nem todas as páginas puderam ser eliminadas. Experimente cada página restante individualmente para ver o erro específico que impede a sua eliminação.",
 	"error.page.delete.permission": "Não tem permissões para eliminar \"{slug}\"",
-	"error.page.draft.duplicate": "Uma página de rascunho com o URL \"{slug}\" já existe",
-	"error.page.duplicate": "Uma página com o URL \"{slug}\" já existe",
+	"error.page.draft.duplicate": "Já existe uma página de rascunho com o URL \"{slug}\"",
+	"error.page.duplicate": "Já existe uma página com o URL \"{slug}\"",
 	"error.page.duplicate.permission": "Não tem permissões para duplicar \"{slug}\"",
 	"error.page.move.ancestor": "A página não pode ser movida para dentro dela mesma",
 	"error.page.move.directory": "A pasta da página não pode ser movida",
@@ -242,6 +247,8 @@
 	"error.page.undefined": "Não foi possível encontrar a página",
 	"error.page.update.permission": "Não tem permissões para atualizar \"{slug}\"",
 
+	"error.request.failed": "The request to {url} failed",
+
 	"error.role.notFound": "A função \"{name}\" não foi encontrada",
 
 	"error.site.changeTitle.empty": "O título não pode ficar em branco",
@@ -254,10 +261,10 @@
 	"error.template.default.notFound": "O template \"default\" não existe",
 
 	"error.unexpected": "Ocorreu um erro inesperado! Ative o modo de debug para obter mais informações: https://getkirby.com/docs/reference/system/options/debug",
+
 	"error.user.avatar.duplicate": "The avatar already exists",
 	"error.user.avatar.notFound": "The avatar does not exist",
 	"error.user.changeEmail.admin": "You are not allowed to change the email address of an admin",
-
 	"error.user.changeEmail.permission": "Não tem permissões para alterar o email do utilizador \"{name}\"",
 	"error.user.changeLanguage.permission": "Não tem permissões para alterar o idioma do utilizador \"{name}\"",
 	"error.user.changeName.permission": "Não tem permissões para alterar o nome do utilizador \"{name}\"",
@@ -348,9 +355,9 @@
 	"error.validation.uuid": "Por favor, insira um UUID válido",
 	"error.validation.url": "Por favor, insira um URL válido",
 
-	"error.version.discard.permission": "Não tem permissão para reverter esta versão",
+	"error.version.discard.permission": "Não tem permissão para descartar esta versão",
 	"error.version.publish.permission": "Não tem permissão para publicar esta versão",
-	"error.version.removed": "The version has been removed by another request",
+	"error.version.removed": "A versão foi removida por outro pedido",
 	"error.version.save.permission": "Não tem permissão para alterar esta versão",
 	"error.version.unlock.permission": "Não tem permissão para desbloquear esta versão",
 
@@ -462,9 +469,9 @@
 
 	"filter": "Filtro",
 
-	"form.discard": "Reverter alterações",
-	"form.discard.confirm": "Tem a certeza que pretende reverter <strong>todas as suas alterações</strong>?",
-	"form.discard.confirm.editor": "Do you really want to <strong>discard the unsaved changes</strong> made by <strong>{editor}</strong>?",
+	"form.discard": "Descartar alterações",
+	"form.discard.confirm": "Tem a certeza que pretende <strong>descartar todas as suas alterações</strong>?",
+	"form.discard.confirm.editor": "Tem a certeza de que pretende <strong>descartar as alterações não guardadas</strong> feitas por <strong>{editor}</strong>?",
 	"form.locked": "Este conteúdo está desativado para si porque encontra-se a ser editado por outro utilizador",
 	"form.unsaved": "As alterações atuais ainda não foram guardadas",
 	"form.preview": "Pré-visualizar alterações",
@@ -540,6 +547,7 @@
 	"license.code.help": "Recebeu o seu código de licença por email após a compra. Por favor, copie e cole aqui.",
 	"license.code.label": "Código de licença",
 	"license.remove.text": "<p>A remoção da licença deste site faz com que o ficheiro da licença seja eliminado irreversivelmente. Após a remoção, poderá então ativar este site com uma chave de licença diferente ou voltar a registar a mesma chave de licença desde que o domínio permaneça o mesmo.</p><p>Para alterar o domínio associado à licença, contacte a equipa do Kirby. <a href='https://getkirby.com/license'>Ler mais &rarr;</a></p>",
+	"license.status": "License status",
 	"license.status.active.info": "Inclui novas versões principais até {date}",
 	"license.status.active.label": "Licença válida",
 	"license.status.acknowledged.info": "Confirmou que irá cumprir os <a href=\"https://getkirby.com/license/free-licenses\">requisitos da licença gratuita</a>",
@@ -717,9 +725,10 @@
 	"preview": "Pré-visualizar",
 	"preview.browser.pin": "Toggle whether preview navigation should be in sync or independent",
 	"preview.browser.scroll": "Sincronizar scroll",
+
 	"progress": "Progress",
 
-	"protected": "Protected",
+	"protected": "Protegida",
 
 	"publish": "Publicar",
 	"published": "Publicadas",
@@ -801,6 +810,8 @@
 	"theme.dark": "Luzes desligadas",
 	"theme.automatic": "Ajustar ao tema do sistema",
 
+	"time.select": "Select a time",
+
 	"title": "Título",
 	"today": "Hoje",
 
@@ -834,6 +845,8 @@
 	"translation.locale": "pt_PT",
 
 	"type": "Tipo",
+
+	"unknown": "unknown",
 
 	"upload": "Enviar",
 	"upload.error.cantMove": "Não foi possível mover o ficheiro enviado",

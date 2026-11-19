@@ -3,7 +3,6 @@
 namespace Kirby\Guards;
 
 use Kirby\Cms\File;
-use Kirby\Cms\Model;
 
 /**
  * Abilities for a `$file` object
@@ -11,15 +10,12 @@ use Kirby\Cms\Model;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @extends ModelAbilities<File>
  */
 class FileAbilities extends ModelAbilities
 {
-	/**
-	 * @var File
-	 */
-	protected Model $model;
-
-	public function error(
+	protected function error(
 		string $key,
 		array $data = [],
 		array $details = []

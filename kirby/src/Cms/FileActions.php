@@ -172,11 +172,13 @@ trait FileActions
 	/**
 	 * Commits a file action, by following these steps
 	 *
-	 * 1. applies the `before` hook
-	 * 2. checks the action rules
-	 * 3. commits the store action
-	 * 4. applies the `after` hook
-	 * 5. returns the result
+	 * 1. checks the action guards
+	 * 2. applies the `before` hook
+	 * 3. checks the action guards again
+	 * 4. runs the action callback
+	 * 5. updates the app-wide model state
+	 * 6. applies the `after` hook, flushes the pages cache
+	 *    and returns the result of the hook
 	 */
 	protected function commit(
 		string $action,
@@ -224,7 +226,7 @@ trait FileActions
 	 * writing, so it can be replaced by any other
 	 * way of generating files.
 	 *
-	 * @param bool $move If set to `true`, the source will be deleted
+	 * @param $move If set to `true`, the source will be deleted
 	 * @throws InvalidArgumentException
 	 * @throws LogicException
 	 */
@@ -449,7 +451,7 @@ trait FileActions
 	 * finally decides what it will support as
 	 * source.
 	 *
-	 * @param bool $move If set to `true`, the source will be deleted
+	 * @param $move If set to `true`, the source will be deleted
 	 * @throws LogicException
 	 */
 	#[BlockCollectionAccess]

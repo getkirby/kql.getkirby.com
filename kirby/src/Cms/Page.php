@@ -8,7 +8,6 @@ use Kirby\Content\Field;
 use Kirby\Content\VersionId;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\NotFoundException;
-use Kirby\Filesystem\Dir;
 use Kirby\Guards\PageGuards;
 use Kirby\Http\Response;
 use Kirby\Panel\Page as Panel;
@@ -79,8 +78,7 @@ class Page extends ModelWithContent
 	 * if it exists
 	 */
 	protected Template|null $intendedTemplate = null;
-
-	protected array|null $inventory = null;
+	protected Inventory|null $inventory = null;
 
 	/**
 	 * The sorting number
@@ -380,7 +378,7 @@ class Page extends ModelWithContent
 		}
 
 		if ($this->num() !== null) {
-			return $this->dirname = $this->num() . Dir::$numSeparator . $this->uid();
+			return $this->dirname = $this->num() . Inventory::$numSeparator . $this->uid();
 		}
 
 		return $this->dirname = $this->uid();
@@ -431,13 +429,17 @@ class Page extends ModelWithContent
 	 *
 	 * @since 3.4.0
 	 *
-	 * @param array $options Options for `Kirby\Http\Uri` to create URL parts
-	 * @param int $code HTTP status code
+	 * @param $options Options for `Kirby\Http\Uri` to create URL parts
+	 * @param $code HTTP status code
+	 * @param $inherit Keep the query and params of the current request (since 5.7.0)
 	 */
 	#[BlockCollectionAccess]
-	public function go(array $options = [], int $code = 302): void
-	{
-		Response::go($this->url($options), $code);
+	public function go(
+		array $options = [],
+		int $code = 302,
+		bool $inherit = false
+	): void {
+		Response::go($this->url($options), $code, $inherit); // @codeCoverageIgnore
 	}
 
 	/**
@@ -484,8 +486,10 @@ class Page extends ModelWithContent
 			return $this->intendedTemplate;
 		}
 
+		// only needs the directory listing,
+		// not the children and files of the inventory
 		return $this
-			->setTemplate($this->inventory()['template'])
+			->setTemplate($this->inventory()->template())
 			->intendedTemplate();
 	}
 
@@ -493,15 +497,11 @@ class Page extends ModelWithContent
 	 * Returns the inventory of files children and content files
 	 */
 	#[BlockCollectionAccess]
-	public function inventory(): array
+	public function inventory(): Inventory
 	{
-		if ($this->inventory !== null) {
-			return $this->inventory;
-		}
-
 		$kirby = $this->kirby();
 
-		return $this->inventory = Inventory::for(
+		return $this->inventory ??= new Inventory(
 			$this->root(),
 			$kirby->contentExtension(),
 			$kirby->contentIgnore(),
@@ -533,11 +533,11 @@ class Page extends ModelWithContent
 
 	/**
 	 * Checks if the page is accessible to the current user
-	 * This permission depends on the `read` option until v6
+	 * This permission depends on the `read` option until v7
 	 */
 	public function isAccessible(): bool
 	{
-		// TODO: remove this check when `read` option deprecated in v6
+		// TODO: remove this check when `read` option deprecated in v7
 		if ($this->isReadable() === false) {
 			return false;
 		}
@@ -695,7 +695,7 @@ class Page extends ModelWithContent
 
 	/**
 	 * Check if the page can be listable by the current user
-	 * This permission depends on the `read` option until v6
+	 * This permission depends on the `read` option until v7
 	 */
 	public function isListable(): bool
 	{
@@ -754,7 +754,7 @@ class Page extends ModelWithContent
 
 	/**
 	 * Check if the page can be read by the current user
-	 * @todo Deprecate `read` option in v6 and make the necessary changes for `access` and `list` options.
+	 * @todo Deprecate `read` option in v7 and make the necessary changes for `access` and `list` options.
 	 */
 	public function isReadable(): bool
 	{
@@ -919,7 +919,7 @@ class Page extends ModelWithContent
 	 * the default template.
 	 *
 	 * @param string $contentType
-	 * @param VersionId|string|null $versionId Optional override for the auto-detected version to render
+	 * @param $versionId Optional override for the auto-detected version to render
 	 * @throws NotFoundException If the default template cannot be found
 	 */
 	#[BlockCollectionAccess]

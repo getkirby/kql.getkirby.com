@@ -3,7 +3,6 @@
 namespace Kirby\Guards;
 
 use Kirby\Cms\Language;
-use Kirby\Cms\Model;
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
 use Kirby\Toolkit\Str;
@@ -14,14 +13,11 @@ use Kirby\Toolkit\Str;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @extends ModelValidators<Language>
  */
 class LanguageValidators extends ModelValidators
 {
-	/**
-	 * @var Language
-	 */
-	protected Model $model;
-
 	/**
 	 * Validates the language that is about to be created
 	 */
@@ -37,7 +33,7 @@ class LanguageValidators extends ModelValidators
 	/**
 	 * Validates the input of the `update` action
 	 *
-	 * @param Language|null $oldLanguage The state before the update
+	 * @param $oldLanguage The state before the update
 	 */
 	protected function ensureToUpdate(Language|null $oldLanguage = null): void
 	{

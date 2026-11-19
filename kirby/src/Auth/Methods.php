@@ -4,11 +4,12 @@ namespace Kirby\Auth;
 
 use Kirby\Cms\App;
 use Kirby\Cms\User;
-use Kirby\Exception\Exception;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\NotFoundException;
 use Kirby\Session\Session;
 use Kirby\Toolkit\A;
+use SensitiveParameter;
+use Throwable;
 
 /**
  * Handler for all auth methods
@@ -22,9 +23,14 @@ class Methods
 	/**
 	 * Available auth method classes
 	 * from the core and plugins
+	 *
+	 * @var array<string, class-string<Method>>
 	 */
 	public static array $methods = [];
 
+	/**
+	 * @var array<string, array>|null
+	 */
 	protected array|null $enabled = null;
 
 	public function __construct(
@@ -41,6 +47,7 @@ class Methods
 	public function authenticate(
 		string $type,
 		string|null $email,
+		#[SensitiveParameter]
 		string|null $password = null,
 		bool $long = false
 	): User|Status {
@@ -60,6 +67,9 @@ class Methods
 
 	/**
 	 * Returns the auth method class for the provided type
+	 *
+	 * @return class-string<Method>
+	 * @throws NotFoundException If no valid class is registered for the type
 	 */
 	public function class(string $type): string
 	{
@@ -85,7 +95,8 @@ class Methods
 	}
 
 	/**
-	 * Returns normalized array of configured methods
+	 * Returns normalized array of configured methods;
+	 * methods that are set to `false` are left out
 	 */
 	public function config(): array
 	{
@@ -101,6 +112,9 @@ class Methods
 			} elseif ($options === true) {
 				// ['password' => true]
 				$options = [];
+			} elseif ($options === false) {
+				// ['password' => false]
+				continue;
 			}
 
 			$normalized[$type] = $options;
@@ -112,6 +126,8 @@ class Methods
 	/**
 	 * Returns normalized array of enabled/configured methods
 	 * by the `auth.methods` config option
+	 *
+	 * @return array<string, array>
 	 */
 	public function enabled(): array
 	{
@@ -123,20 +139,27 @@ class Methods
 		$enabled = [];
 
 		foreach ($config as $type => $options) {
-			$class = $this->class($type);
+			// fail loudly for unknown types
+			$this->class($type);
 
 			try {
-				if ($class::isEnabled($this->auth, $options) === true) {
+				if ($this->get($type)->isEnabled() === true) {
 					$enabled[$type] = $options;
 				}
 
-			} catch (Exception $e) {
-				// consider methods that throw an exception
-				// from their `::isEnabled()` method as not enabled
+			} catch (Throwable $e) {
+				// consider methods that throw an exception from
+				// their constructor or `::isEnabled()` as not enabled
 
 				// when running in debug, re-throw exception
 				if ($this->kirby->option('debug') === true) {
 					throw $e;
+				}
+
+				// otherwise only print it to the error log
+				// unless disabled by setting `auth.debug` to `false`
+				if ($this->kirby->option('auth.debug', 'log') === 'log') {
+					error_log($e);
 				}
 			}
 		}
@@ -175,7 +198,8 @@ class Methods
 
 		return new $method(
 			auth:    $this->auth,
-			options: $this->enabled()[$type] ?? []
+			type:    $type,
+			options: $this->config()[$type] ?? []
 		);
 	}
 
@@ -194,5 +218,4 @@ class Methods
 	{
 		return in_array(true, array_column($this->config(), '2fa'), true);
 	}
-
 }

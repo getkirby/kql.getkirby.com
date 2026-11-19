@@ -61,9 +61,9 @@ class Site extends ModelWithContent
 	protected string $homePageId;
 
 	/**
-	 * Cache for the inventory array
+	 * Inventory of the site directory
 	 */
-	protected array|null $inventory = null;
+	protected Inventory|null $inventory = null;
 
 	/**
 	 * The current page object
@@ -253,15 +253,11 @@ class Site extends ModelWithContent
 	 * and children in the site directory
 	 */
 	#[BlockCollectionAccess]
-	public function inventory(): array
+	public function inventory(): Inventory
 	{
-		if ($this->inventory !== null) {
-			return $this->inventory;
-		}
-
 		$kirby = $this->kirby();
 
-		return $this->inventory = Inventory::for(
+		return $this->inventory ??= new Inventory(
 			$this->root(),
 			$kirby->contentExtension(),
 			$kirby->contentIgnore(),
@@ -338,8 +334,8 @@ class Site extends ModelWithContent
 	 * prop, the home page will be returned if
 	 * it can be found. (see `Site::homePage()`)
 	 *
-	 * @param string|null $path omit for current page,
-	 *                          otherwise e.g. `notes/across-the-ocean`
+	 * @param $path omit for current page,
+	 *             otherwise e.g. `notes/across-the-ocean`
 	 */
 	public function page(string|null $path = null): Page|null
 	{
@@ -394,9 +390,8 @@ class Site extends ModelWithContent
 			return null;
 		}
 
-		// the site preview defaults to the home page, so for backward
-		// compatibility we also check the home page's preview permission
-		// @todo Remove in 6.0.0, only check `site.preview`
+		// the preview renders the home page with its preview token
+		// @todo 7.0 Only check `site.preview` with a site preview token
 		if ($this->homePage()?->guards()->isAvailable('preview') !== true) {
 			return null;
 		}

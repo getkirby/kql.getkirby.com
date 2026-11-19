@@ -15,9 +15,23 @@ use Kirby\Exception\LogicException;
  */
 class Permissions
 {
+	/**
+	 * Actions registered by plugins, by category
+	 *
+	 * @var array<string, array>
+	 */
 	public static array $extendedActions = [];
+
+	/**
+	 * IDs of custom Panel areas as keys
+	 *
+	 * @var array<string, bool>
+	 */
 	public static array $extendedAreas = [];
 
+	/**
+	 * @var array<string, array<string, bool>>
+	 */
 	protected array $defaults = [
 		'access' => [
 			'account'   => true,
@@ -91,6 +105,9 @@ class Permissions
 		]
 	];
 
+	/**
+	 * @var array<string, array>
+	 */
 	protected array $actions;
 
 	/**
@@ -103,8 +120,8 @@ class Permissions
 		$defaults = $this->defaults;
 
 		// dynamically register access permissions for custom areas
-		foreach (array_keys(static::$extendedAreas) as $areaId) {
-			$defaults['access'][$areaId] = true;
+		foreach (array_keys(static::$extendedAreas) as $area) {
+			$defaults['access'][$area] = true;
 		}
 
 		// dynamically register the extended actions
@@ -152,24 +169,17 @@ class Permissions
 	}
 
 	/**
-	 * @return ($default is null ? bool|null : bool)
+	 * Returns the permission for a category or a specific
+	 * action or the `$default` if it is not defined
 	 *
-	 * @todo Replace first param with `string $category` in v6
+	 * @return ($default is null ? bool|null : bool)
+	 * @throws LogicException if the permission value is not a boolean
 	 */
 	public function for(
-		string|null $category = null,
+		string $category,
 		string|null $action = null,
 		bool|null $default = false
 	): bool|null {
-		if (is_null($category) === true) {
-			Helpers::deprecated(
-				'Passing `$category = null` to `Permissions::for()` is not supported',
-				'permissions-for-category-null'
-			);
-
-			return $default;
-		}
-
 		if ($this->has($category, $action) === false) {
 			return $default;
 		}
@@ -256,6 +266,8 @@ class Permissions
 
 	/**
 	 * Returns all permissions as an array
+	 *
+	 * @return array<string, array>
 	 */
 	public function toArray(): array
 	{

@@ -20,6 +20,8 @@ use Kirby\Panel\Ui\Item\PageItem;
  * @since     6.0.0
  *
  * @unstable
+ *
+ * @extends ModelPickerDialogController<Page>
  */
 class PagePickerDialogController extends ModelPickerDialogController
 {
@@ -121,7 +123,7 @@ class PagePickerDialogController extends ModelPickerDialogController
 				layout: $this->layout,
 				text: $this->text
 			))->props(),
-			'hasChildren'      => $model->hasChildren(),
+			'hasChildren'      => $model->children()->findBy('isListable', true) !== null,
 			'selectedChildren' => count(array_filter(
 				$this->selected(),
 				fn (string $id) => str_starts_with($id, $model->id() . '/')

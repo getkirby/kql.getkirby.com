@@ -2,7 +2,6 @@
 
 namespace Kirby\Guards;
 
-use Kirby\Cms\Model;
 use Kirby\Cms\Page;
 
 /**
@@ -11,20 +10,17 @@ use Kirby\Cms\Page;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @extends ModelPermissions<Page>
  */
 class PagePermissions extends ModelPermissions
 {
-	/**
-	 * @var Page
-	 */
-	protected Model $model;
-
 	public function category(): string
 	{
 		return 'pages';
 	}
 
-	public function error(string $key, array $data = []): never
+	protected function error(string $key, array $data = []): never
 	{
 		parent::error(
 			key: 'page.' . $key . '.permission',

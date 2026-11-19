@@ -8,6 +8,7 @@ use Kirby\Cms\User;
 use Kirby\Exception\AbilityException;
 use Kirby\Exception\Exception;
 use Kirby\Exception\PermissionException;
+use SensitiveParameter;
 use WeakMap;
 
 /**
@@ -19,22 +20,53 @@ use WeakMap;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @template TModel of Model
+ * @template TAbilities of ModelAbilities<TModel>
+ * @template TPermissions of ModelPermissions<TModel>
+ * @template TValidators of ModelValidators<TModel>
  */
 abstract class ModelGuards
 {
 	use HasActions;
 
+	/**
+	 * Guards of each model, see `::for()`
+	 *
+	 * @var WeakMap<Model, ModelGuards>|null
+	 */
 	protected static WeakMap|null $cache = null;
 
+	/**
+	 * @var TAbilities
+	 */
+	protected ModelAbilities $abilities;
+
+	/**
+	 * @var TPermissions
+	 */
+	protected ModelPermissions $permissions;
+
+	/**
+	 * @var TValidators
+	 */
+	protected ModelValidators $validators;
+
+	/**
+	 * Child classes create their abilities, permissions
+	 * and validators for the model and user
+	 *
+	 * @param TModel $model
+	 */
 	public function __construct(
-		protected ModelAbilities $abilities,
 		protected Model $model,
-		protected ModelPermissions $permissions,
-		protected User $user,
-		protected ModelValidators $validators,
+		protected User $user
 	) {
 	}
 
+	/**
+	 * @return TAbilities
+	 */
 	public function abilities(): ModelAbilities
 	{
 		return $this->abilities;
@@ -43,6 +75,8 @@ abstract class ModelGuards
 	/**
 	 * Returns the availability of every action that the
 	 * blueprint of the model defines an option for.
+	 *
+	 * @return array<string, bool>
 	 */
 	public function availability(): array
 	{
@@ -63,13 +97,13 @@ abstract class ModelGuards
 	}
 
 	/**
-	 * Checks if a method is available to be executed. In comparison to
-	 * `ensureExecutable`, this does not validate any input for the action yet.
+	 * Checks if an action is available to be executed. In comparison to
+	 * `::ensureExecutable()`, this does not validate any input for the action yet.
 	 * It will only check the ability and the permissions to execute this action.
 	 * This is typically used to check if UI elements in the Panel should be
-	 * availabel or not.
+	 * available or not.
 	 *
-	 * @param bool $default Used if the action has no permission rule
+	 * @param $default Used if the action has no permission rule
 	 * @throws AbilityException|PermissionException
 	 */
 	public function ensureAvailable(string $action, bool $default = false): void
@@ -90,8 +124,11 @@ abstract class ModelGuards
 	 *
 	 * @throws AbilityException|PermissionException|Exception
 	 */
-	public function ensureExecutable(string $action, mixed ...$arguments): void
-	{
+	public function ensureExecutable(
+		string $action,
+		#[SensitiveParameter]
+		mixed ...$arguments
+	): void {
 		if ($this->has($action) === true) {
 			$this->{$this->method($action)}(...$arguments);
 
@@ -121,7 +158,6 @@ abstract class ModelGuards
 			return $cached;
 		}
 
-		/** @psalm-suppress TooFewArguments */
 		return $cache[$model] = new static(
 			model: $model,
 			user: $user
@@ -131,7 +167,7 @@ abstract class ModelGuards
 	/**
 	 * Non-throwing counterpart of `::ensureAvailable()`
 	 *
-	 * @param bool $default Used if the action has no permission rule
+	 * @param $default Used if the action has no permission rule
 	 */
 	public function isAvailable(string $action, bool $default = false): bool
 	{
@@ -150,8 +186,11 @@ abstract class ModelGuards
 	 * the layers can throw, not just the ability and permission
 	 * exceptions.
 	 */
-	public function isExecutable(string $action, mixed ...$arguments): bool
-	{
+	public function isExecutable(
+		string $action,
+		#[SensitiveParameter]
+		mixed ...$arguments
+	): bool {
 		try {
 			$this->ensureExecutable($action, ...$arguments);
 
@@ -161,17 +200,22 @@ abstract class ModelGuards
 		}
 	}
 
+	/**
+	 * @return TPermissions
+	 */
 	public function permissions(): ModelPermissions
 	{
 		return $this->permissions;
 	}
-
 
 	public function user(): User
 	{
 		return $this->user;
 	}
 
+	/**
+	 * @return TValidators
+	 */
 	public function validators(): ModelValidators
 	{
 		return $this->validators;

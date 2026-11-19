@@ -3,13 +3,11 @@
 namespace Kirby\Guards;
 
 use Kirby\Cms\App;
-use Kirby\Cms\Model;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
 use Kirby\Exception\PermissionException;
-use Kirby\Form\Field\PageListField;
 use Kirby\Form\Fields;
 use Kirby\Toolkit\A;
 use Kirby\Toolkit\Str;
@@ -20,14 +18,11 @@ use Kirby\Toolkit\Str;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @extends ModelValidators<Page>
  */
 class PageValidators extends ModelValidators
 {
-	/**
-	 * @var Page
-	 */
-	protected Model $model;
-
 	/**
 	 * Validates the input of the `changeNum` action
 	 */
@@ -58,7 +53,7 @@ class PageValidators extends ModelValidators
 	/**
 	 * Validates the input of the `changeStatusToListed` action
 	 */
-	protected function ensureToChangeStatusToListed(int $position): void
+	protected function ensureToChangeStatusToListed(int|null $position = null): void
 	{
 		$this->validateNum($position);
 	}
@@ -80,19 +75,24 @@ class PageValidators extends ModelValidators
 	}
 
 	/**
-	 * Validates the page that is about to be created
+	 * Validates the page that is about to be created,
+	 * including its content
 	 */
 	protected function ensureToCreate(): void
 	{
-		$this->validateSlug($this->model->slug());
-		$this->validateDoesNotExist();
-		$this->validateDuplicate($this->model->slug(), strict: true);
+		$this->validateToBeCreatable();
+
+		// a non-draft page must have complete content,
+		// just like a draft that gets published
+		if ($this->model->isDraft() === false) {
+			$this->validateContent();
+		}
 	}
 
 	/**
 	 * Validates the input of the `delete` action
 	 *
-	 * @param bool $force Allows deleting a page that still has children
+	 * @param $force Allows deleting a page that still has children
 	 */
 	protected function ensureToDelete(bool $force = false): void
 	{
@@ -118,6 +118,54 @@ class PageValidators extends ModelValidators
 	}
 
 	/**
+	 * Validates the page that is about to be published
+	 */
+	protected function ensureToPublish(): void
+	{
+		if ($this->model->isDraft() === true) {
+			$this->validateContent();
+		}
+	}
+
+	/**
+	 * Validates that the page content has no errors in any language
+	 */
+	public function validateContent(): void
+	{
+		$errors = $this->model->errors();
+
+		// the errors above only cover the current language,
+		// so the content of all other languages must be validated too
+		if ($errors === [] && $this->model->kirby()->multilang() === true) {
+			foreach ($this->model->kirby()->languages() as $language) {
+				$errors = $this->model->version()->errors($language);
+
+				if ($errors !== []) {
+					// add the language to the error details
+					// to make clear which translation is incomplete
+					foreach ($errors as $name => $error) {
+						$label = $error['label'] ?? $name;
+
+						$errors[$name]['label']    = $label . ' (' . $language->name() . ')';
+						$errors[$name]['language'] = $language->code();
+					}
+
+					break;
+				}
+			}
+		}
+
+		// the field errors are passed on as details, so that
+		// the Panel can show which fields are still incomplete
+		if ($errors !== []) {
+			$this->error(
+				key: 'page.changeStatus.incomplete',
+				details: $errors
+			);
+		}
+	}
+
+	/**
 	 * Validates that the page does not exist yet
 	 */
 	public function validateDoesNotExist(): void
@@ -133,8 +181,8 @@ class PageValidators extends ModelValidators
 	/**
 	 * Validates that no other page or draft with the same slug exists
 	 *
-	 * @param bool $strict If `true`, the page itself is not ignored,
-	 *                     which is needed for pages that don't exist yet
+	 * @param $strict If `true`, the page itself is not ignored,
+	 *               which is needed for pages that don't exist yet
 	 */
 	public function validateDuplicate(
 		string $slug,
@@ -193,7 +241,6 @@ class PageValidators extends ModelValidators
 
 		$this->validateSlugProtectedPaths(slug: $this->model->slug(), parent: $parent);
 
-		// check for duplicates
 		if ($parent->childrenAndDrafts()->find($this->model->slug()) !== null) {
 			throw new DuplicateException(
 				key: 'page.move.duplicate',
@@ -205,53 +252,27 @@ class PageValidators extends ModelValidators
 	}
 
 	/**
-	 * Validates if the template of the page is accepted
-	 * as a subpage template of the given parent
+	 * Validates that a pages field of the given
+	 * parent lists pages with the page's blueprint
 	 */
 	public function validateMoveToTemplate(Site|Page $parent): void
 	{
-		$allowed = [];
+		$fields = Fields::for($parent);
 
-		// collect all allowed subpage templates from all page list
-		// fields in the blueprint (only consider fields that list
-		// pages of the targeted new parent page)
-		$hasPageList = false;
-
-		foreach (Fields::for($parent) as $field) {
-			if (
-				$field instanceof PageListField === false ||
-				$field->parentModel()->is($parent) === false
-			) {
-				continue;
-			}
-
-			$hasPageList = true;
-
-			// go through all allowed templates and
-			// add the name to the allowlist
-			foreach ($field->templates() as $template) {
-				$allowed[] = $template;
-			}
-		}
-
-		// check if the parent has at least one page list field
-		if ($hasPageList === false) {
+		if ($fields->hasPageBlueprint() === false) {
 			throw new LogicException(
 				key: 'page.move.noBlueprints',
 				data: ['parent' => $parent->id() ?? '/']
 			);
 		}
 
-		// check if the template of this page is allowed as subpage type
-		// for the potential new parent
-		if (
-			$allowed !== [] &&
-			in_array($this->model->intendedTemplate()->name(), $allowed, true) === false
-		) {
+		$template = $this->model->intendedTemplate()->name();
+
+		if ($fields->hasPageBlueprint($template) === false) {
 			throw new PermissionException(
 				key: 'page.move.template',
 				data: [
-					'template' => $this->model->intendedTemplate()->name(),
+					'template' => $template,
 					'parent'   => $parent->id() ?? '/',
 				]
 			);
@@ -290,18 +311,18 @@ class PageValidators extends ModelValidators
 	 */
 	public function validateSlugLength(string $slug): void
 	{
-		$slugLength = Str::length($slug);
+		$length = Str::length($slug);
 
-		if ($slugLength === 0) {
+		if ($length === 0) {
 			$this->error(
 				key: 'page.slug.invalid'
 			);
 		}
 
-		if ($slugsMaxlength = App::instance()->option('slugs.maxlength', 255)) {
-			$maxlength = (int)$slugsMaxlength;
+		if ($maxlength = App::instance()->option('slugs.maxlength', 255)) {
+			$maxlength = (int)$maxlength;
 
-			if ($slugLength > $maxlength) {
+			if ($length > $maxlength) {
 				$this->error(
 					key: 'page.slug.maxlength',
 					data: ['length' => $maxlength]
@@ -322,9 +343,15 @@ class PageValidators extends ModelValidators
 			return;
 		}
 
+		// compare with the paths relative to the index URL
+		// (e.g. `panel` instead of `subfolder/panel`)
+		$base  = $this->model->kirby()->url('index', true)->path()->toString();
 		$paths = A::map(
 			['api', 'assets', 'media', 'panel'],
-			fn ($url) => $this->model->kirby()->url($url, true)->path()->toString()
+			fn ($url) => Str::afterStart(
+				$this->model->kirby()->url($url, true)->path()->toString(),
+				$base . '/'
+			)
 		);
 
 		$index = array_search($slug, $paths, true);
@@ -378,5 +405,16 @@ class PageValidators extends ModelValidators
 				key: 'page.changeTitle.empty'
 			);
 		}
+	}
+
+	/**
+	 * Validates the page that is about to be created
+	 * before its content has been added.
+	 */
+	public function validateToBeCreatable(): void
+	{
+		$this->validateSlug($this->model->slug());
+		$this->validateDoesNotExist();
+		$this->validateDuplicate($this->model->slug(), strict: true);
 	}
 }

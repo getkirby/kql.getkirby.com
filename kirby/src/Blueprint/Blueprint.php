@@ -23,6 +23,11 @@ use Kirby\Toolkit\I18n;
  */
 class Blueprint
 {
+	/**
+	 * Cache of the raw props of all found blueprints, keyed by name
+	 *
+	 * @var array<string, array>
+	 */
 	public static array $loaded = [];
 
 	/**
@@ -36,7 +41,6 @@ class Blueprint
 	public static array $normalized = [];
 
 	protected AcceptRules|null $acceptRules = null;
-
 	protected FieldsRegistry $fields;
 	protected ModelWithContent $model;
 	protected array $props;
@@ -105,8 +109,8 @@ class Blueprint
 	}
 
 	/**
-	 * Gathers what file templates are allowed in
-	 * a model based on the blueprint
+	 * Collects which blueprints the model's files and
+	 * the pages created through its fields may use
 	 * @since 6.0.0
 	 */
 	public function acceptRules(): AcceptRules
@@ -117,10 +121,13 @@ class Blueprint
 	/**
 	 * Gathers what file templates are allowed in
 	 * this model based on the blueprint
+	 * @deprecated 6.0.0 Use `self::acceptRules()->fileBlueprints()` instead
+	 *
+	 * @return list<string>
 	 */
 	public function acceptedFileTemplates(string|null $inField = null): array
 	{
-		return $this->acceptRules()->fileTemplates($inField);
+		return $this->acceptRules()->fileBlueprints($inField);
 	}
 
 	/**
@@ -233,7 +240,7 @@ class Blueprint
 	 * Normalize field props for a single field.
 	 * Facade for `Normalizer::normalizeFieldProps()`
 	 *
-	 * @throws InvalidArgumentException If the filed name is missing or the field type is invalid
+	 * @throws InvalidArgumentException If the field name is missing or the field type is invalid
 	 */
 	public static function fieldProps(array|string $props): array
 	{
@@ -242,6 +249,8 @@ class Blueprint
 
 	/**
 	 * Returns all field definitions
+	 *
+	 * @return array<string|int, array>
 	 */
 	public function fields(): array
 	{
@@ -267,6 +276,16 @@ class Blueprint
 	 */
 	public static function find(string $name): array
 	{
+		// the name can contain user input (e.g. the file template),
+		// so it must not leave the folder of the blueprint type,
+		// e.g. `files/../pages/default`
+		if (str_contains(str_replace('\\', '/', $name), '../') === true) {
+			throw new NotFoundException(
+				key: 'blueprint.notFound',
+				data: ['name' => $name]
+			);
+		}
+
 		if (isset(static::$loaded[$name]) === true) {
 			return static::$loaded[$name];
 		}
@@ -395,10 +414,10 @@ class Blueprint
 			is_array($rules) === true &&
 			A::isAssociative($rules) === true
 		) {
-			$roleId = $user->role()->id();
+			$role = $user->role()->id();
 
-			if (isset($rules[$roleId]) === true) {
-				return $rules[$roleId];
+			if (isset($rules[$role]) === true) {
+				return $rules[$role];
 			}
 
 			if (isset($rules['*']) === true) {

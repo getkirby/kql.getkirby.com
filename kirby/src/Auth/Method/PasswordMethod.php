@@ -2,10 +2,10 @@
 
 namespace Kirby\Auth\Method;
 
-use InvalidArgumentException;
 use Kirby\Auth\Method;
 use Kirby\Auth\Status;
 use Kirby\Cms\User;
+use Kirby\Exception\InvalidArgumentException;
 use Kirby\Panel\Ui\Button;
 use Kirby\Panel\Ui\Component;
 use SensitiveParameter;
@@ -21,7 +21,7 @@ use SensitiveParameter;
 class PasswordMethod extends Method
 {
 	/**
-	 * @throws InvalidArgumentException If the password is missing
+	 * @throws InvalidArgumentException If the email or password is missing
 	 */
 	public function authenticate(
 		string|null $email,
@@ -29,6 +29,12 @@ class PasswordMethod extends Method
 		string|null $password = null,
 		bool $long = false
 	): User|Status {
+		if ($email === null) {
+			throw new InvalidArgumentException(
+				message: 'Missing email'
+			);
+		}
+
 		if ($password === null) {
 			throw new InvalidArgumentException(
 				message: 'Missing password'
@@ -60,7 +66,7 @@ class PasswordMethod extends Method
 		return new Component(
 			component: 'k-login-password-method-form',
 			submit: [
-				'icon'  => static::icon(),
+				'icon'  => $this->icon(),
 				'label' => static::i18n('login'),
 			],
 		);
@@ -82,11 +88,11 @@ class PasswordMethod extends Method
 		return $this->auth->challenges()->hasAvailable($user, '2fa');
 	}
 
-	public static function settings(User $user): array
+	public function settings(User $user): array
 	{
 		return [
 			new Button(
-				icon:     static::icon(),
+				icon:     $this->icon(),
 				text:     static::i18n('password'),
 				dialog:   $user->panel()->url(true) . '/changePassword',
 				disabled: $user->guards()->isAvailable('changePassword') === false,

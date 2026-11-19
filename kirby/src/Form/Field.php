@@ -71,6 +71,8 @@ abstract class Field implements Stringable
 	/**
 	 * This method can be used in field plugins to read in
 	 * additional config options for the field from Kirby's config.
+	 *
+	 * @return array<string, mixed>
 	 */
 	public function config(): array
 	{
@@ -139,6 +141,9 @@ abstract class Field implements Stringable
 		return $this->name();
 	}
 
+	/**
+	 * Checks if the field is hidden in the Panel
+	 */
 	public function isHidden(): bool
 	{
 		return false;
@@ -146,7 +151,7 @@ abstract class Field implements Stringable
 
 	/**
 	 * Fields without a value are never submitted.
-	 * `Kirby\Form\Mixin\Value` overwrites this for all
+	 * `Kirby\Form\Field\ValueField` overwrites this for all
 	 * fields that can actually hold a value.
 	 */
 	public function isSubmittable(Language $language): bool
@@ -165,6 +170,8 @@ abstract class Field implements Stringable
 	/**
 	 * Returns the props for the Vue component,
 	 * incl. all exported `#[Prop]` properties
+	 *
+	 * @return array<string, mixed>
 	 */
 	public function props(): array
 	{
@@ -176,8 +183,8 @@ abstract class Field implements Stringable
 	}
 
 	/**
-	 * Sets `#[Prop]` properties, skipping
-	 * `null` values to keep their defaults
+	 * Sets `#[Prop]` properties by their name or alias,
+	 * skipping `null` values to keep their defaults
 	 * @see Props::set()
 	 *
 	 * @throws InvalidArgumentException if a value has the wrong type
@@ -187,22 +194,33 @@ abstract class Field implements Stringable
 		$props = new Props($this);
 
 		foreach ($args as $key => $value) {
-			if (
-				$value === null ||
-				$props->has($key) === false
-			) {
+			$name = $props->name($key);
+
+			if ($value === null || $name === null) {
 				continue;
 			}
 
+			// the prop's own name wins over its aliases
+			// and an alias over the ones listed after it
+			foreach ($props->names($name) as $other) {
+				if ($other === $key) {
+					break;
+				}
+
+				if (($args[$other] ?? null) !== null) {
+					continue 2;
+				}
+			}
+
 			try {
-				$props->set($key, $value);
+				$props->set($name, $value);
 			} catch (TypeError $e) {
 				throw new InvalidArgumentException(
 					key: 'field.prop.invalid',
 					data: [
 						'name' => $args['name'] ?? $this->name ?? '-',
 						'prop' => $key,
-						'type' => $props->type($key)
+						'type' => $props->type($name)
 					],
 					previous: $e
 				);
@@ -214,7 +232,7 @@ abstract class Field implements Stringable
 	 * Resolves a field type to its class name
 	 * @since 6.0.0
 	 *
-	 * @return class-string<static>
+	 * @return class-string<Field>
 	 * @throws InvalidArgumentException if the type is unknown, not a field class or its constructor does not accept all props
 	 */
 	public static function resolve(
@@ -263,6 +281,8 @@ abstract class Field implements Stringable
 
 	/**
 	 * Converts the field to a plain array
+	 *
+	 * @return array<string, mixed>
 	 */
 	public function toArray(): array
 	{

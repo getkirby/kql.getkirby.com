@@ -224,8 +224,8 @@ trait PageActions
 	 * If changing to `listed`, you can pass a position for the
 	 * page in the siblings collection. Siblings will be resorted.
 	 *
-	 * @param string $status "draft", "listed" or "unlisted"
-	 * @param int|null $position Optional sorting number
+	 * @param $status "draft", "listed" or "unlisted"
+	 * @param $position Optional sorting number
 	 * @throws InvalidArgumentException If an invalid status is being passed
 	 */
 	#[BlockCollectionAccess]
@@ -393,11 +393,13 @@ trait PageActions
 	/**
 	 * Commits a page action, by following these steps
 	 *
-	 * 1. applies the `before` hook
-	 * 2. checks the action rules
-	 * 3. commits the store action
-	 * 4. applies the `after` hook
-	 * 5. returns the result
+	 * 1. checks the action guards
+	 * 2. applies the `before` hook
+	 * 3. checks the action guards again
+	 * 4. runs the action callback
+	 * 5. updates the app-wide model state
+	 * 6. applies the `after` hook, flushes the pages cache
+	 *    and returns the result of the hook
 	 */
 	protected function commit(
 		string $action,
@@ -514,7 +516,8 @@ trait PageActions
 		// Make sure that the page does not already exist at this point.
 		// Otherwise, moving the storage to memory storage, might delete
 		// an existing page before we can even run the checks.
-		$page->guards()->ensureExecutable('create');
+		// The full create guards incl. content validation run in the commit.
+		$page->guards()->ensureToBeCreatable();
 
 		// merge the content with the defaults and run it through
 		// the fields to apply their save handlers
@@ -812,7 +815,16 @@ trait PageActions
 			// derived from the parent and slug. Otherwise the caller could
 			// place the page's content at an arbitrary path on disk.
 			$props['dirname'],
-			$props['root']
+			$props['root'],
+
+			// Prevent injecting in-memory children, drafts and files.
+			// Anything that stores their content (e.g. a generated UUID)
+			// would write the injected pages to disk (also to an injected
+			// root). Injected files and pages would also count towards
+			// the min/max validation of pages and files sections.
+			$props['children'],
+			$props['drafts'],
+			$props['files']
 		);
 
 		$content  = (array)($props['content'] ?? []);
@@ -822,7 +834,9 @@ trait PageActions
 			...$props,
 			'content'  => $content,
 			'isDraft'  => $props['isDraft'] ?? $props['draft'] ?? true,
-			'model'    => $props['model']   ?? $template,
+			// always derive the model from the template. A custom model
+			// could otherwise bypass the content validation for public pages
+			'model'    => $template,
 			'slug'     => Url::slug($props['slug'] ?? $content['title'] ?? null),
 			'template' => $template,
 		];
@@ -1054,24 +1068,5 @@ trait PageActions
 		}
 
 		return $page;
-	}
-
-	/**
-	 * Updates parent collections with the new page object
-	 * after a page action
-	 *
-	 * @deprecated 5.0.0 Use ModelState::update instead
-	 */
-	protected static function updateParentCollections(
-		Page $page,
-		string|false $method,
-		Page|Site|null $parentModel = null
-	): void {
-		ModelState::update(
-			method: $method,
-			current: $page,
-			next: $page,
-			parent: $parentModel
-		);
 	}
 }

@@ -6,6 +6,7 @@ use Kirby\Cms\Model;
 use Kirby\Cms\User;
 use Kirby\Exception\Exception;
 use Kirby\Exception\InvalidArgumentException;
+use SensitiveParameter;
 
 /**
  * Validators for the input of a model action
@@ -17,11 +18,16 @@ use Kirby\Exception\InvalidArgumentException;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @template TModel of Model
  */
 abstract class ModelValidators
 {
 	use HasActions;
 
+	/**
+	 * @param TModel $model
+	 */
 	public function __construct(
 		protected Model $model,
 		protected User $user
@@ -33,24 +39,31 @@ abstract class ModelValidators
 	 * dedicated `ensureTo<Action>()` method are handed over to it,
 	 * all others have nothing to validate.
 	 */
-	public function ensure(string $action, mixed ...$arguments): void
-	{
+	public function ensure(
+		string $action,
+		#[SensitiveParameter]
+		mixed ...$arguments
+	): void {
 		if ($this->has($action) === true) {
 			$this->{$this->method($action)}(...$arguments);
 		}
 	}
 
 	/**
-	 * Throws for a failed validation. Can be overridden by child
-	 * classes to prefix the key or add model-specific data.
+	 * Throws for a failed validation. The key is never prefixed,
+	 * as validators also check other models, e.g. user avatars.
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function error(string $key, array $data = []): never
-	{
+	protected function error(
+		string $key,
+		array $data = [],
+		array $details = []
+	): never {
 		throw new InvalidArgumentException(
 			key: $key,
-			data: $data
+			data: $data,
+			details: $details
 		);
 	}
 
@@ -59,8 +72,11 @@ abstract class ModelValidators
 	 * throw more specific exception classes than the other
 	 * layers, so this catches every Kirby exception.
 	 */
-	public function may(string $action, mixed ...$arguments): bool
-	{
+	public function may(
+		string $action,
+		#[SensitiveParameter]
+		mixed ...$arguments
+	): bool {
 		try {
 			$this->ensure($action, ...$arguments);
 

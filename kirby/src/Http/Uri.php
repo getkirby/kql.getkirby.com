@@ -68,6 +68,8 @@ class Uri implements Stringable
 
 	/**
 	 * Supported schemes
+	 *
+	 * @var list<string>
 	 */
 	protected static array $schemes = ['http', 'https', 'ftp'];
 
@@ -81,7 +83,7 @@ class Uri implements Stringable
 	/**
 	 * Creates a new URI object
 	 *
-	 * @param array $inject Additional props to inject if a URL string is passed
+	 * @param $inject Additional props to inject if a URL string is passed
 	 */
 	public function __construct(array|string $props = [], array $inject = [])
 	{
@@ -286,6 +288,7 @@ class Uri implements Stringable
 				$this->setHost($host);
 			}
 		}
+
 		return $this;
 	}
 
@@ -305,7 +308,8 @@ class Uri implements Stringable
 	}
 
 	/**
-	 * Inherit query, params and fragment from a parent Uri
+	 * Inherit query, params and fragment from a parent Uri;
+	 * the Uri's own values win over the parent's
 	 * @since 5.2.0
 	 * @return $this
 	 */
@@ -315,11 +319,11 @@ class Uri implements Stringable
 			$parent = new static($parent);
 		}
 
-		$this->query->merge($parent->query());
-		$this->params->merge($parent->params());
+		$this->setQuery($this->query->toArray() + $parent->query()->toArray());
+		$this->setParams($this->params->toArray() + $parent->params()->toArray());
 
-		if ($fragment = $parent->fragment()) {
-			$this->setFragment($fragment);
+		if ($this->hasFragment() === false) {
+			$this->setFragment($parent->fragment());
 		}
 
 		return $this;
@@ -356,7 +360,8 @@ class Uri implements Stringable
 	 */
 	public function setFragment(string|null $fragment = null): static
 	{
-		$this->fragment = $fragment ? ltrim($fragment, '#') : null;
+		$fragment       = ltrim($fragment ?? '', '#');
+		$this->fragment = $fragment !== '' ? $fragment : null;
 		return $this;
 	}
 
@@ -413,12 +418,10 @@ class Uri implements Stringable
 			$port = null;
 		}
 
-		if ($port !== null) {
-			if ($port < 1 || $port > 65535) {
-				throw new InvalidArgumentException(
-					message: 'Invalid port format: ' . $port
-				);
-			}
+		if ($port !== null && ($port < 1 || $port > 65535)) {
+			throw new InvalidArgumentException(
+				message: 'Invalid port format: ' . $port
+			);
 		}
 
 		$this->port = $port;
@@ -475,6 +478,8 @@ class Uri implements Stringable
 
 	/**
 	 * Converts the Url object to an array
+	 *
+	 * @return array<string, mixed>
 	 */
 	public function toArray(): array
 	{
@@ -518,9 +523,12 @@ class Uri implements Stringable
 			$slash = false;
 		}
 
-		$path = $this->path->toString($slash) . $this->params->toString(true);
+		// relative root URLs already start with a slash,
+		// another one would turn params into a host (`//page:2`)
+		$path  = $this->path->toString($slash);
+		$path .= $this->params->toString($slash === true || $path !== '');
 
-		if ($this->slash && ($path !== '' || $slash === true)) {
+		if ($this->slash === true && ($path !== '' || $slash === true)) {
 			$path .= '/';
 		}
 
@@ -550,6 +558,7 @@ class Uri implements Stringable
 				$this->setHost($host);
 			}
 		}
+
 		return $this;
 	}
 
@@ -557,7 +566,7 @@ class Uri implements Stringable
 	 * Parses the path inside the props and extracts
 	 * the params unless disabled
 	 *
-	 * @return array Modified props array
+	 * @return array<string, mixed> Modified props array
 	 */
 	protected static function parsePath(array $props): array
 	{

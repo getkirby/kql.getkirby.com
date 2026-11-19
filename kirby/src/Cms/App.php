@@ -68,6 +68,9 @@ class App
 	protected static App|null $instance = null;
 	protected static string|null $version = null;
 
+	/**
+	 * @var array<string, mixed>
+	 */
 	public array $data = [];
 
 	protected Api|null $api = null;
@@ -80,6 +83,10 @@ class App
 	protected Languages|null $languages = null;
 	protected bool|null $multilang = null;
 	protected string|null $nonce = null;
+
+	/**
+	 * @var array<string, mixed>
+	 */
 	protected array $options;
 	protected Panel|null $panel = null;
 	protected string|null $path = null;
@@ -95,12 +102,15 @@ class App
 	protected Ingredients $urls;
 	protected Visitor|null $visitor = null;
 
+	/**
+	 * @var array<string, mixed>
+	 */
 	protected array $propertyData;
 
 	/**
 	 * Creates a new App instance
 	 *
-	 * @param bool $setInstance If false, the instance won't be set globally
+	 * @param $setInstance If false, the instance won't be set globally
 	 */
 	public function __construct(array $props = [], bool $setInstance = true)
 	{
@@ -235,9 +245,9 @@ class App
 	/**
 	 * Applies a hook to the given value
 	 *
-	 * @param string $name Full event name
-	 * @param array $args Associative array of named arguments
-	 * @param string|null $modify Key in $args that is modified by the hooks (default: first argument)
+	 * @param $name Full event name
+	 * @param $args Associative array of named arguments
+	 * @param $modify Key in $args that is modified by the hooks (default: first argument)
 	 * @return mixed Resulting value as modified by the hooks
 	 */
 	public function apply(
@@ -312,6 +322,8 @@ class App
 
 	/**
 	 * Returns all available blueprints for this installation
+	 *
+	 * @return list<string>
 	 */
 	public function blueprints(string $type = 'pages'): array
 	{
@@ -357,7 +369,7 @@ class App
 	 * Creates an instance with the same
 	 * initial properties
 	 *
-	 * @param bool $setInstance If false, the instance won't be set globally
+	 * @param $setInstance If false, the instance won't be set globally
 	 */
 	public function clone(array $props = [], bool $setInstance = true): static
 	{
@@ -375,7 +387,7 @@ class App
 	 * automatically injected
 	 *
 	 * @return Collection|null
-	 * @todo 6.0 Add return type declaration
+	 * @todo 8.0 Add return type declaration
 	 */
 	public function collection(string $name, array $options = [])
 	{
@@ -385,7 +397,6 @@ class App
 			'site'  => $site = $this->site(),
 			'pages' => new LazyValue(fn () => $site->children()),
 			'users' => new LazyValue(fn () => $this->users())
-
 		]);
 	}
 
@@ -425,8 +436,8 @@ class App
 	 * Generates a non-guessable token based on model
 	 * data and a configured salt
 	 *
-	 * @param object|null $model Object to pass to the salt callback if configured
-	 * @param string $value Model data to include in the generated token
+	 * @param $model Object to pass to the salt callback if configured
+	 * @param $value Model data to include in the generated token
 	 */
 	public function contentToken(object|null $model, string $value): string
 	{
@@ -458,6 +469,8 @@ class App
 	/**
 	 * Calls a page controller by name
 	 * and with the given arguments
+	 *
+	 * @return array<string, mixed>
 	 */
 	public function controller(
 		string $name,
@@ -531,7 +544,7 @@ class App
 	 * Checks/returns a CSRF token
 	 * @since 3.7.0
 	 *
-	 * @param string|null $check Pass a token here to compare it to the one in the session
+	 * @param $check Pass a token here to compare it to the one in the session
 	 * @return string|bool Either the token or a boolean check result
 	 */
 	public function csrf(string|null $check = null): string|bool
@@ -611,13 +624,13 @@ class App
 		$languages = $this->languages();
 		$visitor   = $this->visitor();
 
-		foreach ($visitor->acceptedLanguages() as $acceptedLang) {
-			$acceptedCode   = $acceptedLang->code();
-			$acceptedLocale = $acceptedLang->locale();
+		foreach ($visitor->acceptedLanguages() as $accepted) {
+			$code   = $accepted->code();
+			$locale = $accepted->locale();
 
 			$match = fn (Language $language, int $precision) =>
 				Str::substr($language->locale(LC_ALL), 0, $precision) ===
-				Str::substr($acceptedLocale, 0, $precision);
+				Str::substr($locale, 0, $precision);
 
 			// Find exact locale matches (e.g. en_GB => en_GB)
 			if ($language = $languages->filter(fn ($language) => $match($language, 5))->first()) {
@@ -625,7 +638,7 @@ class App
 			}
 
 			// Find exact code matches
-			if ($language = $languages->findBy('code', $acceptedCode)) {
+			if ($language = $languages->findBy('code', $code)) {
 				return $language;
 			}
 
@@ -639,7 +652,8 @@ class App
 	}
 
 	/**
-	 * Returns the Email singleton
+	 * Creates a new email from a preset and/or props
+	 * and sends it (unless in debug mode)
 	 */
 	public function email(mixed $preset = [], array $props = []): BaseEmail
 	{
@@ -733,7 +747,7 @@ class App
 	/**
 	 * Returns the current App instance
 	 *
-	 * @param bool $lazy If `true`, the instance is only returned if already existing
+	 * @param $lazy If `true`, the instance is only returned if already existing
 	 * @psalm-return ($lazy is false ? static : static|null)
 	 */
 	public static function instance(
@@ -847,8 +861,8 @@ class App
 	/**
 	 * Renders a single KirbyTag with the given attributes
 	 *
-	 * @param string|array $type Tag type or array with all tag arguments
-	 *                           (the key of the first element becomes the type)
+	 * @param $type Tag type or array with all tag arguments
+	 *             (the key of the first element becomes the type)
 	 */
 	public function kirbytag(
 		string|array $type,
@@ -935,7 +949,8 @@ class App
 	}
 
 	/**
-	 * Returns the current language code
+	 * Returns the code of a language by code or shortcut
+	 * (`default`, `current`); defaults to the current language
 	 */
 	public function languageCode(string|null $languageCode = null): string|null
 	{
@@ -1150,12 +1165,12 @@ class App
 			}
 
 			// checks custom language definition for slugs
-			if ($slugsOption = $this->option('slugs')) {
+			if ($slugs = $this->option('slugs')) {
 				// slugs option must be set to string or
 				// "slugs" => ["language" => "de"] as array
 				if (
-					is_string($slugsOption) === true ||
-					isset($slugsOption['language']) === true
+					is_string($slugs) === true ||
+					isset($slugs['language']) === true
 				) {
 					$this->i18n();
 				}
@@ -1228,7 +1243,7 @@ class App
 		string|null $path = null,
 		string|null $method = null
 	): Response|null {
-		if ((filter_var($_ENV['KIRBY_RENDER'] ?? true, FILTER_VALIDATE_BOOLEAN)) === false) {
+		if (filter_var($_ENV['KIRBY_RENDER'] ?? true, FILTER_VALIDATE_BOOLEAN) === false) {
 			return null;
 		}
 
@@ -1262,10 +1277,7 @@ class App
 		string|null $path = null,
 		string|null $language = null
 	): mixed {
-		// set the current translation
 		$this->setCurrentTranslation($language);
-
-		// set the current locale
 		$this->setCurrentLanguage($language);
 
 		try {
@@ -1379,7 +1391,7 @@ class App
 	/**
 	 * Returns the current session object
 	 *
-	 * @param array $options Additional options, see the session component
+	 * @param $options Additional options, see the session component
 	 */
 	public function session(array $options = []): Session
 	{
@@ -1557,9 +1569,9 @@ class App
 	 * Uses the snippet component to create
 	 * and return a template snippet
 	 *
-	 * @param array|object $data Variables or an object that becomes `$item`
-	 * @param bool $return On `false`, directly echo the snippet
-	 * @psalm-return ($return is true ? string : null)
+	 * @param $data Variables or an object that becomes `$item`
+	 * @param $return On `false`, directly echo the snippet
+	 * @psalm-return ($slots is true ? Snippet : ($return is true ? string : null))
 	 */
 	public function snippet(
 		string|array|null $name,
@@ -1625,8 +1637,8 @@ class App
 	/**
 	 * Trigger a hook by name
 	 *
-	 * @param string $name Full event name
-	 * @param array $args Associative array of named arguments
+	 * @param $name Full event name
+	 * @param $args Associative array of named arguments
 	 */
 	public function trigger(
 		string $name,
@@ -1638,7 +1650,7 @@ class App
 	/**
 	 * Returns a system url
 	 *
-	 * @param bool $object If set to `true`, the URL is converted to an object
+	 * @param $object If set to `true`, the URL is converted to an object
 	 * @psalm-return ($object is false ? string|null : Uri)
 	 */
 	public function url(

@@ -2,7 +2,6 @@
 
 namespace Kirby\Guards;
 
-use Kirby\Cms\Model;
 use Kirby\Cms\User;
 
 /**
@@ -11,14 +10,11 @@ use Kirby\Cms\User;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @extends ModelPermissions<User>
  */
 class UserPermissions extends ModelPermissions
 {
-	/**
-	 * @var User
-	 */
-	protected Model $model;
-
 	/**
 	 * Users manage their own account under a different
 	 * permission category than the accounts of others
@@ -28,7 +24,7 @@ class UserPermissions extends ModelPermissions
 		return $this->user->is($this->model) === true ? 'user' : 'users';
 	}
 
-	public function error(string $key, array $data = []): never
+	protected function error(string $key, array $data = []): never
 	{
 		parent::error(
 			key: 'user.' . $key . '.permission',

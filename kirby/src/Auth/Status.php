@@ -75,7 +75,7 @@ class Status
 		User|null $user,
 		bool $impersonated,
 		Session $session,
-		array $challenges
+		Challenges $challenges
 	): static {
 		if ($user !== null) {
 			return $impersonated === true ?
@@ -86,19 +86,15 @@ class Status
 		$email = $session->get('kirby.challenge.email');
 
 		if ($email !== null) {
-			$data     = $session->get('kirby.challenge.data');
-			$fallback = match ($challenges) {
-				[]      => null,
-				default => $challenges[array_key_last($challenges)]
-			};
+			$mode = $session->get('kirby.challenge.mode');
 
 			return static::pending(
 				kirby:     $kirby,
 				email:     $email,
-				mode:      $session->get('kirby.challenge.mode'),
+				mode:      $mode,
 				challenge: $session->get('kirby.challenge.type'),
-				data:      Pending::from($data ?? []),
-				fallback:  $fallback
+				data:      Pending::from($session->get('kirby.challenge.data') ?? []),
+				fallback:  $challenges->fallback($email, $mode ?? 'login')
 			);
 		}
 

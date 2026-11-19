@@ -58,7 +58,7 @@ abstract class LazyCollection extends Collection
 		// or "element found but not hydrated"
 		if (
 			$element === null &&
-			(array_key_exists($key, $this->data) || $this->initialized === false)
+			(array_key_exists($key, $this->data) === true || $this->initialized === false)
 		) {
 			return $this->hydrateElement($key);
 		}
@@ -75,14 +75,14 @@ abstract class LazyCollection extends Collection
 		// might bring back the element that was unset
 		$this->initialize();
 
-		return parent::__unset($key);
+		parent::__unset($key);
 	}
 
 	/**
 	 * Creates chunks of the same size.
 	 * The last chunk may be smaller
 	 *
-	 * @param int $size Number of elements per chunk
+	 * @param $size Number of elements per chunk
 	 * @return static A new collection with an element for each chunk and
 	 *                a sub collection in each chunk
 	 */
@@ -422,8 +422,8 @@ abstract class LazyCollection extends Collection
 	/**
 	 * Returns a slice of the object
 	 *
-	 * @param int $offset The optional index to start the slice from
-	 * @param int|null $limit The optional number of elements to return
+	 * @param $offset The optional index to start the slice from
+	 * @param $limit The optional number of elements to return
 	 * @return $this|static
 	 */
 	public function slice(

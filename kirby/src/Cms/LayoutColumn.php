@@ -25,6 +25,8 @@ class LayoutColumn extends Item
 
 	/**
 	 * Creates a new LayoutColumn object
+	 *
+	 * @param array<string, mixed> $params
 	 */
 	public function __construct(array $params = [])
 	{
@@ -54,7 +56,7 @@ class LayoutColumn extends Item
 	/**
 	 * Returns the blocks collection
 	 *
-	 * @param bool $includeHidden Sets whether to include hidden blocks
+	 * @param $includeHidden Sets whether to include hidden blocks
 	 */
 	public function blocks(bool $includeHidden = false): Blocks
 	{
@@ -71,10 +73,7 @@ class LayoutColumn extends Item
 	 */
 	public function isEmpty(): bool
 	{
-		return $this
-			->blocks()
-			->filter('isHidden', false)
-			->count() === 0;
+		return $this->blocks()->isEmpty();
 	}
 
 	/**
@@ -101,6 +100,8 @@ class LayoutColumn extends Item
 	/**
 	 * The result is being sent to the editor
 	 * via the API in the panel
+	 *
+	 * @return array{blocks: list<mixed>, id: string, width: string}
 	 */
 	public function toArray(): array
 	{

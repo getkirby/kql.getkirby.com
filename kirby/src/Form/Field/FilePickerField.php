@@ -5,6 +5,7 @@ namespace Kirby\Form\Field;
 use Kirby\Api\Api;
 use Kirby\Cms\File;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Form\Interface\ProvidesAcceptedFileBlueprints;
 use Kirby\Form\Mixin;
 use Kirby\Panel\Controller\Dialog\FilePickerDialogController;
 use Kirby\Panel\Ui\Item\FileItem;
@@ -19,7 +20,7 @@ use Kirby\Reflection\Attributes\Prop;
  *
  * @extends ModelPickerField<File>
  */
-class FilePickerField extends ModelPickerField
+class FilePickerField extends ModelPickerField implements ProvidesAcceptedFileBlueprints
 {
 	use Mixin\Upload;
 
@@ -41,9 +42,7 @@ class FilePickerField extends ModelPickerField
 				'method'  => 'POST',
 				'action'  => function () use ($field) {
 					// @codeCoverageIgnoreStart
-					/**
-					 * @var Api
-					 */
+					/** @var Api $api */
 					$api = $this;
 
 					// move_uploaded_file() not working with unit test
@@ -77,13 +76,11 @@ class FilePickerField extends ModelPickerField
 
 	public function parentModel(): ModelWithContent
 	{
-		$parent = $this->parent;
-
-		if (is_string($parent) === true) {
-			$model = $this->model()->query($parent, ModelWithContent::class);
+		if (is_string($this->parent) === false) {
+			return $this->model();
 		}
 
-		return $model ?? $this->model();
+		return $this->model()->query($this->parent, ModelWithContent::class) ?? $this->model();
 	}
 
 	public function parent(): string
@@ -97,7 +94,7 @@ class FilePickerField extends ModelPickerField
 	}
 
 	/**
-	 * @param File $model
+	 * @param File|null $model
 	 */
 	public function store(ModelWithContent|null $model = null): string
 	{

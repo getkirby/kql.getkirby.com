@@ -26,11 +26,15 @@ class Collections
 	 * has been called, to avoid further
 	 * processing on sequential calls to
 	 * the same collection.
+	 *
+	 * @var array<string, array{result: mixed, data: array}>
 	 */
 	protected array $cache = [];
 
 	/**
 	 * Store of all collections
+	 *
+	 * @var array<string, Closure>
 	 */
 	protected array $collections = [];
 
@@ -39,7 +43,7 @@ class Collections
 	 * `$collections->myCollection()`
 	 *
 	 * @return Collection|null
-	 * @todo 6.0 Add return type declaration
+	 * @todo 8.0 Add return type declaration
 	 */
 	public function __call(string $name, array $arguments = [])
 	{
@@ -50,8 +54,8 @@ class Collections
 	 * Loads a collection by name if registered
 	 *
 	 * @return Collection|null
-	 * @todo 6.0 Add deprecation warning when anything else than a Collection is returned
-	 * @todo 7.0 Add PHP return type declaration for `Toolkit\Collection`
+	 * @todo 7.0 Add deprecation warning when anything else than a Collection is returned
+	 * @todo 8.0 Add PHP return type declaration for `Toolkit\Collection`
 	 */
 	public function get(string $name, array $data = [])
 	{

@@ -27,7 +27,7 @@ use Kirby\Uuid\FileUuid;
  * or `Kirby\Image\Image` class, which
  * is used to handle all asset file methods.
  * In addition the File class handles
- * meta data via `Kirby\Cms\Content`.
+ * meta data via `Kirby\Content\Content`.
  *
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
@@ -49,9 +49,7 @@ class File extends ModelWithContent
 	 * Cache for the initialized blueprint object
 	 */
 	protected FileBlueprint|null $blueprint = null;
-
 	protected string $filename;
-
 	protected string|null $id = null;
 
 	/**
@@ -63,7 +61,6 @@ class File extends ModelWithContent
 	 * The absolute path to the file
 	 */
 	protected string|null $root;
-
 	protected string|null $template;
 
 	/**
@@ -73,6 +70,8 @@ class File extends ModelWithContent
 
 	/**
 	 * Creates a new File object
+	 *
+	 * @param array<string, mixed> $props
 	 */
 	public function __construct(array $props)
 	{
@@ -112,7 +111,7 @@ class File extends ModelWithContent
 		}
 
 		// asset method proxy
-		if (method_exists($this->asset(), $method)) {
+		if (method_exists($this->asset(), $method) === true) {
 			return $this->asset()->$method(...$arguments);
 		}
 
@@ -163,6 +162,8 @@ class File extends ModelWithContent
 	/**
 	 * Returns an array with all blueprints that are available for the file
 	 * by comparing the file list fields of the parent model
+	 *
+	 * @return list<array{name: string, title: string}>
 	 */
 	public function blueprints(string|null $inField = null): array
 	{
@@ -175,7 +176,7 @@ class File extends ModelWithContent
 		// always include the current template as option
 		$templates = [
 			$this->template() ?? 'default',
-			...$this->parent()->blueprint()->acceptedFileTemplates($inField)
+			...$this->parent()->blueprint()->acceptRules()->fileBlueprints($inField)
 		];
 
 		// make sure every template is only included once
@@ -256,7 +257,6 @@ class File extends ModelWithContent
 		// default language
 		if ($language->isDefault() === false) {
 			unset($data['template'], $data['sort']);
-			return $data;
 		}
 
 		return $data;
@@ -264,6 +264,8 @@ class File extends ModelWithContent
 
 	/**
 	 * Constructs a File object
+	 *
+	 * @param array<string, mixed> $props
 	 */
 	public static function factory(array $props): static
 	{
@@ -296,6 +298,8 @@ class File extends ModelWithContent
 
 	/**
 	 * Converts the file to html
+	 *
+	 * @param array<string, mixed> $attr
 	 */
 	public function html(array $attr = []): string
 	{
@@ -330,11 +334,11 @@ class File extends ModelWithContent
 
 	/**
 	 * Checks if the file is accessible to the current user
-	 * This permission depends on the `read` option until v6
+	 * This permission depends on the `read` option until v7
 	 */
 	public function isAccessible(): bool
 	{
-		// TODO: remove this check when `read` option deprecated in v6
+		// TODO: remove this check when `read` option deprecated in v7
 		if ($this->isReadable() === false) {
 			return false;
 		}
@@ -365,7 +369,7 @@ class File extends ModelWithContent
 
 	/**
 	 * Check if the file can be listable by the current user
-	 * This permission depends on the `read` option until v6
+	 * This permission depends on the `read` option until v7
 	 */
 	public function isListable(): bool
 	{
@@ -381,7 +385,7 @@ class File extends ModelWithContent
 	/**
 	 * Check if the file can be read by the current user
 	 *
-	 * @todo Deprecate `read` option in v6 and make the necessary changes for `access` and `list` options.
+	 * @todo Deprecate `read` option in v7 and make the necessary changes for `access` and `list` options.
 	 */
 	public function isReadable(): bool
 	{
@@ -411,7 +415,7 @@ class File extends ModelWithContent
 	/**
 	 * Returns the absolute path to the file in the public media folder
 	 *
-	 * @param string|null $filename Optional override for the filename
+	 * @param $filename Optional override for the filename
 	 */
 	#[BlockCollectionAccess]
 	public function mediaRoot(string|null $filename = null): string
@@ -427,27 +431,26 @@ class File extends ModelWithContent
 	#[BlockCollectionAccess]
 	public function mediaToken(): string
 	{
-		$token = $this->kirby()->contentToken($this, $this->id());
-		return substr($token, 0, 10);
+		return substr($this->kirby()->contentToken($this, $this->id()), 0, 10);
 	}
 
 	/**
 	 * Returns the absolute Url to the file in the public media folder
 	 *
-	 * @param string|null $filename Optional override for the filename
+	 * @param $filename Optional override for the filename
 	 */
 	public function mediaUrl(string|null $filename = null): string
 	{
-		$url        = $this->parent()->mediaUrl() . '/' . $this->mediaHash();
 		$filename ??= $this->filename();
 
-		return $url . '/' . $filename;
+		return $this->parent()->mediaUrl() . '/' . $this->mediaHash() . '/' . $filename;
 	}
 
 	/**
 	 * Get the file's last modification time.
 	 *
-	 * @param string|null $handler date, intl or strftime
+	 * @param 'date'|'intl'|'strftime'|null $handler Date handler, `null` for the configured one
+	 * @return ($format is null ? int : string|false)
 	 */
 	public function modified(
 		string|IntlDateFormatter|null $format = null,

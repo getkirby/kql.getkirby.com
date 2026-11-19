@@ -2,6 +2,7 @@
 
 namespace Kirby\Http;
 
+use Kirby\Exception\BadMethodCallException;
 use Kirby\Toolkit\Str;
 use Whoops\Handler\PrettyPageHandler;
 
@@ -28,6 +29,16 @@ class Url
 	 */
 	public static function __callStatic(string $method, array $arguments)
 	{
+		// `Uri::__call()` would return `null` for anything unknown
+		if (
+			method_exists(Uri::class, $method) === false &&
+			property_exists(Uri::class, $method) === false
+		) {
+			throw new BadMethodCallException(
+				message: 'The method: "' . $method . '" does not exist'
+			);
+		}
+
 		$uri = new Uri($arguments[0] ?? static::current());
 		return $uri->$method(...array_slice($arguments, 1));
 	}
@@ -79,7 +90,7 @@ class Url
 		$handler->setEditor($editor);
 
 		$href = $handler->getEditorHref($file, $line);
-		return is_string($href) ? $href : null;
+		return is_string($href) === true ? $href : null;
 	}
 
 	/**
@@ -88,8 +99,10 @@ class Url
 	 */
 	public static function fix(string|null $url = null): string|null
 	{
+		$url ??= '';
+
 		// make sure to not touch absolute urls
-		if (!preg_match('!^(https|http|ftp)\:\/\/!i', $url ?? '')) {
+		if (preg_match('!^(https|http|ftp)\:\/\/!i', $url) !== 1) {
 			return 'http://' . $url;
 		}
 
@@ -279,7 +292,7 @@ class Url
 		// remove the trailing slash from the path
 		$uri->setSlash(false);
 
-		$url = $base ? $uri->base() : $uri->toString();
+		$url = $base === true ? $uri->base() : $uri->toString();
 		$url = str_replace('www.', '', $url ?? '');
 
 		return Str::short($url, $length, $rep);
@@ -307,34 +320,6 @@ class Url
 	public static function stripFragment(string|null $url = null): string
 	{
 		return static::toObject($url)->setFragment(null)->toString();
-	}
-
-	/**
-	 * Smart resolver for internal and external urls
-	 * @deprecated 5.3.0 Use `Kirby\Cms\Url::to()` instead
-	 */
-	public static function to(
-		string|null $path = null,
-		array|null $options = null
-	): string {
-		// make sure $path is string
-		$path ??= '';
-
-		// keep relative urls
-		if (
-			str_starts_with($path, './') === true ||
-			str_starts_with($path, '../') === true
-		) {
-			return $path;
-		}
-
-		$url = static::makeAbsolute($path);
-
-		if ($options === null) {
-			return $url;
-		}
-
-		return (new Uri($url, $options))->toString();
 	}
 
 	/**

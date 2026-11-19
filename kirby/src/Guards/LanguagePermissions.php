@@ -3,7 +3,6 @@
 namespace Kirby\Guards;
 
 use Kirby\Cms\Language;
-use Kirby\Cms\Model;
 
 /**
  * Role and blueprint based permissions for a `$language` object
@@ -11,20 +10,17 @@ use Kirby\Cms\Model;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  * @since     6.0.0
+ *
+ * @extends ModelPermissions<Language>
  */
 class LanguagePermissions extends ModelPermissions
 {
-	/**
-	 * @var Language
-	 */
-	protected Model $model;
-
 	public function category(): string
 	{
 		return 'languages';
 	}
 
-	public function error(string $key, array $data = []): never
+	protected function error(string $key, array $data = []): never
 	{
 		parent::error(
 			key: 'language.' . $key . '.permission',

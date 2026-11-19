@@ -4,7 +4,6 @@ namespace Kirby\Auth\Challenge;
 
 use Kirby\Auth\Challenge;
 use Kirby\Auth\Pending;
-use Kirby\Cms\User;
 use Kirby\Panel\Ui\Button;
 use Kirby\Panel\Ui\Component;
 use Kirby\Toolkit\Totp;
@@ -15,7 +14,6 @@ use SensitiveParameter;
  * that are generated with an authenticator app.
  * Users first have to set up time-based codes
  * (storing the TOTP secret in their user account).
- *
  *
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
@@ -40,7 +38,7 @@ class TotpChallenge extends Challenge
 		);
 	}
 
-	public static function icon(): string
+	public function icon(): string
 	{
 		return 'qr-code';
 	}
@@ -48,18 +46,18 @@ class TotpChallenge extends Challenge
 	/**
 	 * Checks whether the user has set up TOTP
 	 */
-	public static function isAvailable(User $user, string $mode = 'login'): bool
+	public function isAvailable(): bool
 	{
-		return $user->secret('totp') !== null;
+		return $this->user->secret('totp') !== null;
 	}
 
-	public static function settings(User $user): array
+	public function settings(): array
 	{
 		return [
 			new Button(
-				icon:   static::icon(),
-				text:   static::i18n('login.challenge.totp.label'),
-				drawer: $user->panel()->url(true) . '/security/challenge/totp'
+				icon:   $this->icon(),
+				text:   $this->label(),
+				drawer: $this->user->panel()->url(true) . '/security/challenge/totp'
 			)
 		];
 	}
@@ -72,6 +70,15 @@ class TotpChallenge extends Challenge
 		mixed $input,
 		Pending $data
 	): bool {
+		// codes from JSON requests may be numbers
+		if (is_int($input) === true) {
+			$input = (string)$input;
+		}
+
+		if (is_string($input) !== true) {
+			return false;
+		}
+
 		$secret = $this->user->secret('totp');
 		return (new Totp($secret))->verify($input);
 	}

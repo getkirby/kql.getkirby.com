@@ -37,7 +37,8 @@ trait HasFiles
 	/**
 	 * Creates a new file
 	 *
-	 * @param bool $move If set to `true`, the source will be deleted
+	 * @param array<string, mixed> $props
+	 * @param $move If set to `true`, the source will be deleted
 	 */
 	#[BlockCollectionAccess]
 	public function createFile(array $props, bool $move = false): File
@@ -98,7 +99,7 @@ trait HasFiles
 			return $this->files;
 		}
 
-		return $this->files = Files::factory($this->inventory()['files'], $this);
+		return $this->files = Files::factory($this->inventory()->files(), $this);
 	}
 
 	/**
@@ -168,6 +169,7 @@ trait HasFiles
 	/**
 	 * Sets the Files collection
 	 *
+	 * @param array<array<string, mixed>>|null $files
 	 * @return $this
 	 */
 	protected function setFiles(array|null $files = null): static
