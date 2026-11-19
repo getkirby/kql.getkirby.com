@@ -6,21 +6,54 @@ Icon
 
 # Temporary files
 # ---------------
-
-/media/*
-!/media/index.html
-
-# Lock files
-# ---------------
-
-.lock
+/.php-cs-fixer.cache
+/public/media/*
+!/public/media/index.html
+/node_modules/
+/site/plugins/*/node_modules/
 
 # Editors
-# (sensitive workspace files)
-# ---------------------------
+# ---------------
+*.sublime-project
 *.sublime-workspace
 /.vscode
 /.idea
+
+# Plugin cruft
+# ---------------
+/site/plugins/*/vendor/**/.*
+/site/plugins/*/vendor/**/*.json
+/site/plugins/*/vendor/**/*.txt
+/site/plugins/*/vendor/**/*.md
+/site/plugins/*/vendor/**/*.yml
+/site/plugins/*/vendor/**/*.yaml
+/site/plugins/*/vendor/**/*.xml
+/site/plugins/*/vendor/**/*.dist
+/site/plugins/*/vendor/**/*.php_cs
+/site/plugins/*/vendor/**/readme.php
+/site/plugins/*/vendor/**/COPYING
+/site/plugins/*/vendor/**/COMMITMENT
+/site/plugins/*/vendor/**/VERSION
+/site/plugins/*/vendor/**/.github/*
+/site/plugins/*/vendor/**/.circleci/*
+/site/plugins/*/vendor/**/docs/*
+/site/plugins/*/vendor/**/example/*
+/site/plugins/*/vendor/**/examples/*
+/site/plugins/*/vendor/**/test/*
+/site/plugins/*/vendor/**/tests/*
+/site/plugins/*/vendor/**/php4/*
+/site/plugins/ray
+
+# Composer
+# ---------------
+/vendor/
+/site/plugins/discord/
+# Kirby lives in vendor/ now; keeps leftovers of the old kirby/ folder out of git
+/kirby/
+
+# Lock files
+# ---------------
+.lock
 
 # -------------SECURITY-------------
 # NEVER publish these files via Git!
@@ -28,17 +61,32 @@ Icon
 
 # Cache Files
 # ---------------
-
 /site/cache/*
 !/site/cache/index.html
 
+# Config
+# ------
+/site/config/keys.php
+/.claude/
+
+# Accounts
+# ---------------
+/site/accounts/*
+!/site/accounts/index.html
+
 # Sessions
 # ---------------
-
 /site/sessions/*
 !/site/sessions/index.html
 
 # License
 # ---------------
-
 /site/config/.license
+
+# Basic auth users
+# ---------------
+/site/config/users.php
+
+# Import scripts
+# ---------------
+import
