@@ -9,7 +9,7 @@
  * https://getkirby.com/docs/guide/templates/controllers
  */
 return function ($page) {
-    return [
-        'tags' => $page->tags()->split(','),
-    ];
+	return [
+		'tags' => $page->tags()->split(','),
+	];
 };

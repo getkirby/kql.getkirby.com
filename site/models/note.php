@@ -19,13 +19,13 @@
  */
 class NotePage extends Page
 {
-    public function cover()
-    {
-        return $this->content()->cover()->toFile() ?? $this->image();
-    }
+	public function cover()
+	{
+		return $this->content()->cover()->toFile() ?? $this->image();
+	}
 
-    public function published($format = null)
-    {
-        return parent::date()->toDate($format ?? 'd M, Y');
-    }
+	public function published($format = null)
+	{
+		return parent::date()->toDate($format ?? 'd M, Y');
+	}
 }

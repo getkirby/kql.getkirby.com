@@ -1,13 +1,13 @@
 <?php
 
 return [
-    'debug' => true,
-    'kql' => [
-        'auth' => false,
-        'methods' => [
-            'allowed' => [
-                'Album::cover',
-            ]
-        ]
-    ]
+	'debug' => true,
+	'kql' => [
+		'auth' => false,
+		'methods' => [
+			'allowed' => [
+				'Album::cover',
+			]
+		]
+	]
 ];

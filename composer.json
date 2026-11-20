@@ -1,38 +1,24 @@
 {
-  "name": "getkirby/kqlkit",
+  "name": "getkirby/kql.getkirby.com",
   "description": "Kirby KQL Kit",
-  "type": "project",
-  "keywords": [
-    "kirby",
-    "cms",
-    "kql",
-    "headless"
-  ],
-  "homepage": "https://getkirby.com",
-  "authors": [
-    {
-      "name": "Bastian Allgeier",
-      "email": "bastian@getkirby.com",
-      "homepage": "https://getkirby.com"
-    }
-  ],
-  "support": {
-    "email": "support@getkirby.com",
-    "issues": "https://github.com/getkirby/starterkit/issues",
-    "forum": "https://forum.getkirby.com",
-    "source": "https://github.com/getkirby/starterkit"
-  },
   "require": {
-    "php": ">=7.4.0 <8.2.0",
-    "getkirby/cms": "^3.6"
-  },
-  "scripts": {
-    "start": [
-      "Composer\\Config::disableProcessTimeout",
-      "@php -S localhost:8000 kirby/router.php"
-    ]
+    "php": "~8.5.0",
+    "getkirby/cms": "^6.0.0-rc.2"
   },
   "config": {
+    "allow-plugins": {
+      "getkirby/composer-installer": true
+    },
     "optimize-autoloader": true
+  },
+  "extra": {
+    "kirby-cms-path": false
+  },
+  "scripts": {
+    "fix": "cpx getkirby/php-cs:^0.2 fix",
+    "start": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php -S localhost:8000 -t public vendor/getkirby/cms/router.php"
+    ]
   }
 }
